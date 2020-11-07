@@ -566,6 +566,12 @@ y dejamos el Listen de la siguiente manera
 Listen 81
 ```
 
+Activamos el modulos de proxy de apache
+
+```bash
+a2enmod proxy
+```
+
 Ahora vamos a configurar el VirtualHost por defecto para que haga de proxyreverso
 
 ```bash

@@ -145,10 +145,10 @@ La siguiente sección se encagar de escuchar las peticiones que vienen del exter
         acl secure dst_port eq 443
 
         # Marcamos todas las cookies como seguras si se usa ssl
-        rsprep ^Set-Cookie:\ (.*) Set-Cookie:\ \1;\ Secure if secure
+        http-response replace-header Set-Cookie "^((?:(?!; [Ss]ecure\b).)*)\$" "\1; secure" if secure
 
         # Agregamos HSTS con un año de duracción
-        rspadd Strict-Transport-Security:\ max-age=31536000 if secure  
+        http-response replace-header Strict-Transport-Security:\ max-age=31536000 if secure
 
         mode http
 

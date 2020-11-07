@@ -349,7 +349,7 @@ dns_ovh_consumer_key = xxx
 ```
 
 Obviamente, los reemplaza ```xxx``` con la información obtenida durante la creación del token. Finalmente, asegúrese de configurar permisos para este archivo con 600, de lo contrario Certbot generara advertencias.
- ```chmod 600 /root/.ovhapi```
+ ```chmod 600 /root/certs/.ovhapi```
 
 Instalamos cerbot en el HA1
 

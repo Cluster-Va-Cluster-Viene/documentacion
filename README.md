@@ -611,6 +611,17 @@ ServerTokens Prod
 ServerSignature Off
 ```
 
+Ahora tenemos que agregar una regla personalizada para que el HAProxy sepa que nuestros WAF estan vivos, para ello cremos el fichero 
+
+```bash
+vim /usr/share/modsecurity-crs/rules/aloha.conf
+```
+con el siguiente contenido
+
+```vim
+SecRule REQUEST_FILENAME "/waf_health_check" "phase:2,id:9999,deny,nolog,noauditlog,ctl:auditEngine=Off"
+```
+
 Ya solo nos queda reinicar apache para cargar todos los cambios y nuestro primer WAF de la granja estaría listo
 
 ```bash

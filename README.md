@@ -853,6 +853,11 @@ Ejecutamos el scritp para que nos agrege los repositorios
 ```bash
 ./mariadb_repo_setup
 ```
+Si no tenemos el siguiente paquete nos dara error a la hora de agregar los repositorios
+
+```bash
+apt install apt-transport-https
+```
 
 Actualizamos
 

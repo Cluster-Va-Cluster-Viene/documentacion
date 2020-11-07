@@ -677,6 +677,18 @@ Instalamos glusterfs-server en todos los nodos
 apt install glusterfs-server
 ```
 
+Arrancamos GlusterFs
+
+```bash
+systemctl start glusterd.service
+```
+
+Y lo habilitamos para que arranque al arrancar el sistema
+
+```bash
+systemctl enable glusterd.service
+```
+
 Vamos a conectar los nodos entre si, no es necesario conectar el nodo-1 a si mismo por lo que lo obviamos
 
 ```bash

@@ -211,7 +211,7 @@ backend bk_nodes
         cookie SERVERID insert indirect nocache
         default-server inter 3s rise 2 fall 3
         option httpchk HEAD /
-        server server1 XXX.XXX.XXX.XXX:80 maxconn 100 weight 15cookie server1 check
+        server server1 XXX.XXX.XXX.XXX:80 maxconn 100 weight 15 cookie server1 check
         server server2 XXX.XXX.XXX.XXX:80 maxconn 100 weight 15 cookie server2 check
         server server3 XXX.XXX.XXX.XXX:80 maxconn 100 weight 10 cookie server3 check
 ```
@@ -339,7 +339,7 @@ pero seria bastante inseguro por lo que podemos dar solo los pemrisos necesarios
 
 Reemplace {domain.ext} con su nombre de dominio. Tenga en cuenta que este es siempre el nombre de dominio raíz sin un subdominio.
 
-Después de la validación, deberá crearse un archivo de configuración para que Certbot pueda acceder a los identificadores de API. Puedes guardar este archivo donde quieras y nombrarlo como quieras. Por mi parte  ```/root/.ovhapi``` con el siguiente contenido.
+Después de la validación, deberá crearse un archivo de configuración para que Certbot pueda acceder a los identificadores de API. Puedes guardar este archivo donde quieras y nombrarlo como quieras. Por mi parte  ```/root/certs/.ovhapi``` con el siguiente contenido.
 
 ```vim
 dns_ovh_endpoint = ovh-eu
@@ -393,7 +393,7 @@ con el siguiente contenido, el cual comprobara la lista de dominios que tenemos 
 find /etc/letsencrypt/live/* -type d -printf "%f\n" > domains_live.txt
 certs=`grep -v -F -x -f domains_live.txt domains_ssl.txt`
 for cert in $certs; do
-        /usr/local/bin/certbot certonly --dns-ovh --dns-ovh-credentials /root/certs/.ovhapi --dns-ovh-propagation-seconds 60 --non-interactive --agree-tos --email nombre@dominio.com -d $cert --deploy-hook /root/certs/deployhook.sh
+        certbot certonly --dns-ovh --dns-ovh-credentials /root/certs/.ovhapi --dns-ovh-propagation-seconds 60 --non-interactive --agree-tos --email nombre@dominio.com -d $cert --deploy-hook /root/certs/deployhook.sh
 done
 ```
 

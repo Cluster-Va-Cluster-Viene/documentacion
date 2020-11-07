@@ -389,7 +389,7 @@ Vamos a crear el siguiente script en la carpeta ```root/certs``` para poder tene
 con el siguiente contenido, el cual comprobara la lista de dominios que tenemos en el ficheros domains_ssl.txt y si no esta creado el certificado lo solicitara, acordarse de cambiar el email.
 
 ```bash
-#!/bin/sh
+#!/bin/bash
 find /etc/letsencrypt/live/* -type d -printf "%f\n" > domains_live.txt
 certs=`grep -v -F -x -f domains_live.txt domains_ssl.txt`
 for cert in $certs; do

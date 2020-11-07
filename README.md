@@ -832,49 +832,26 @@ Ya solo nos queda reinicar apache para cargar todos los cambios y nuestro primer
 systemctl restart apache2
 ```
 
-### Mysql Galera Cluster
+### Mariadb Galera Cluster
 
-Tenemos muchas maneras de montar un sistema de base de datos en modo cluster con [mysql](https://www.mysql.com/products/cluster/), [Percona](https://www.percona.com/software/mysql-database/percona-xtradb-cluster), [galera](https://galeracluster.com/), en nuestro caso lo vamos a realizar con Galera.
+Tenemos muchas maneras de montar un sistema de base de datos en modo cluster con [mysql](https://www.mysql.com/products/cluster/), [Percona](https://www.percona.com/software/mysql-database/percona-xtradb-cluster), [galera](https://galeracluster.com/), en nuestro caso lo vamos a realizar con MariaDB.
 
-Agregamos la clave del repositiro
+Nos decargamos el siguiente paquete para configurar los repositirios segun nuestro sistema
 
 ```bash
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv BC19DDBA
+wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
 ```
 
+Damos permisos de ejecución 
+
 ```bash
-Executing: /tmp/apt-key-gpghome.25JSAjfw9n/gpg.1.sh --keyserver keyserver.ubuntu.com --recv BC19DDBA
-gpg: key D669017EBC19DDBA: public key "Codership Oy <info@galeracluster.com>" imported
-gpg: Total number processed: 1
-gpg:               imported: 1
+chmod +x mariadb_repo_setup
 ```
 
-Creamos el fichero
+Ejecutamos el scritp para que nos agrege los repositorios
 
 ```bash
-sudo vim /etc/apt/sources.list.d/galera.list
-```
-
-y añadimos repositirios
-
-```bash
-deb http://releases.galeracluster.com/mysql-wsrep-5.7/ubuntu bionic main
-deb http://releases.galeracluster.com/galera-3/ubuntu bionic main
-```
-
-creamos fichero preferencias para que use la versión del sistema de repos que le dijimos y no la de ubuntu.
-
-```bash
-sudo vim /etc/apt/preferences.d/galera.pref
-```
-
-Agregamos prefencias repo
-
-```bash
-# Prefer Codership repository
-Package: *
-Pin: origin releases.galeracluster.com
-Pin-Priority: 1001
+./mariadb_repo_setup
 ```
 
 Actualizamos
@@ -883,25 +860,18 @@ Actualizamos
 sudo apt update
 ```
 
-Instalamos galera y ponemos una contraseña robusta
+Instalamos MariaDB y galera
 
 ```bash
-sudo apt install galera-3 mysql-wsrep-5.7
-```
-
-Desactivamos apparmor, lo dice la documentación de Galera.
-<https://galeracluster.com/library/training/tutorials/galera-installation.html#disabling-apparmor>
-
-```bash
-sudo ln -s /etc/apparmor.d/usr.sbin.mysqld /etc/apparmor.d/disable/
+apt install mariadb-server mariadb-backup galera-4
 ```
 
 Ahora vamos a pasar a configurar los nodos, las configuraciones entre ellos son casi identicas.
 
-De forma predeterminada, MySQL está configurado para comprobar el directorio /etc/mysql/conf.d donde busca configuraciones adicionales desde los archivos que terminan en .cnf. Por lo que vamos a crear el siguiente fichero.
+De forma predeterminada, MariaDB está configurado para comprobar el directorio /etc/mysql/mariadb.conf.d donde busca configuraciones adicionales desde los archivos que terminan en .cnf. Por lo que vamos a crear el siguiente fichero.
 
 ```bash
-vim /etc/mysql/conf.d/galera.cnf
+vim /etc/mysql/mariadb.conf.d/61-clustervaclusterviene.cnf
 ```
 
 Agregamos la siguiente configuración:
@@ -913,7 +883,7 @@ Agregamos la siguiente configuración:
 * wsrep_node_name: EL nombre del nodo
 
 ```vim
-[mysqld]
+[mariadb]
 binlog_format=ROW
 default-storage-engine=innodb
 innodb_autoinc_lock_mode=2
@@ -940,15 +910,15 @@ Replicamos esta configuración en el resto de los nodos cambiado los diferentes 
 Activamos mysql para que arranque al comienzo
 
 ```bash
-systemctl enable mysql
+systemctl enable mariadb
 ```
 
-Para configurar el primer nodo, deberá usar una secuencia de comandos de inicio especial. Por la manera en que configuró el clúster, cada nodo que se conecte intentará establecer conexión con al menos otro nodo especificado en su archivo galera.cnf para obtener su estado inicial. Sin usar la secuencia de comandos mysqld_bootstrap que permite que systemd pase el parámetro --wsrep-new-cluster, un ```systemctl start mysql``` normal fallaría porque no hay en ejecución nodos con los que el primer nodo se pueda conectar.
+Para configurar el primer nodo, deberá usar una secuencia de comandos de inicio especial. Por la manera en que configuró el clúster, cada nodo que se conecte intentará establecer conexión con al menos otro nodo especificado en su archivo 61-clustervaclusterviene.cnf para obtener su estado inicial. Un ```systemctl start mysql``` normal fallaría porque no hay en ejecución nodos con los que el primer nodo se pueda conectar.
 
 Ejecutamos en el primer nodo
 
 ```bash
-mysqld_bootstrap
+galera_new_cluster
 ```
 
 Una vez terminado podemos comprobar el tamaño del cluster

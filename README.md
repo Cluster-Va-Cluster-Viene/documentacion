@@ -747,7 +747,7 @@ gluster volume add-brick clusterVaClusterViene replica 4 node-4:/gfsvolume/gv0/
 Una vez listo el el volumen lo arrancamos
 
 ```bash
-gluster volume start gluster-volume
+gluster volume start clusterVaClusterViene
 ```
 
 Podemos comprobar el estado del volumen

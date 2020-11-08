@@ -999,7 +999,11 @@ iptables -A INPUT -i {interface} -p tcp --destination-port 80 -j DROP
 iptables -A INPUT -i {interface} -p tcp --destination-port 443 -j DROP
 ```
 
-### Monitorización
+## Monitorización
+
+Para la monitorización de nuestros sistemas vamos a usar el tandem [prometheus](https://prometheus.io/) y [grafana](https://grafana.com/)
+
+### Prometheus
 
 Descargamos prometheus
 
@@ -1131,7 +1135,7 @@ systemctl start prometheus
 ```
 
 
-### NodoMonitor
+### node exporter
 
 Descargamos
 
@@ -1203,6 +1207,29 @@ Lo activamos para arranque de maquina
 ```bash
 systemctl enable node_exporter
 ```
+
+Vamos a comunicar el node_exporter con Prometheus para ello vamos a editar la configuración de Prometheus
+
+```bash
+vim /etc/prometheus/prometheus.yml
+```
+
+Y añadimos lo siguiente
+
+```bash
+  - job_name: 'node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9100']
+```
+
+Recargamos el demonio de systemctl y reiniciamos prometheus
+
+```bash
+systemctl daemon-reload
+systemctl restart prometheus
+```
+
 
 ### Grafana
 

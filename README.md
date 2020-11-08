@@ -1134,6 +1134,56 @@ systemctl daemon-reload
 systemctl start prometheus
 ```
 
+#### Nginx + SSL + Autenticación
+
+Una opción para ayudar a proteger nuestro servidor Prometheus es colocarlo detrás de un proxy inverso para que luego podamos agregar SSL y una capa de autenticación sobre la interfaz web predeterminada sin restricciones de Prometheus.
+
+Instalmos nginx
+
+```bash
+sudo apt install nginx
+```
+
+Vamos a crear un sitio nuevo
+
+```
+vim /etc/nginx/sites-enabled/prometheus
+```
+
+Agregamos el siguiente contenido
+
+```vim
+server {
+    listen 80;
+    listen [::]:80;
+    server_name  tu-dominio.com;
+
+    location / {
+        proxy_pass           http://localhost:9090/;
+    }
+}
+```
+
+comprobamos que las configuraciones sean correcta
+
+```bash
+nginx -t
+```
+
+Reiniciamos nginx y comrobamos su estado
+
+```bash
+sudo service nginx restart
+sudo service nginx status
+```
+
+Ahora ya podemos acceder a http://tu-dominio.com
+
+Si accedemos por la ip veremos la web por defecto de nginx si no queremos que esto suceda podemos eliminar el siguiente fichero
+
+```bash
+rm /etc/nginx/sites-enabled/default
+```
 
 ### node exporter
 

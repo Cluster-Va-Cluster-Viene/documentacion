@@ -1230,6 +1230,10 @@ systemctl daemon-reload
 systemctl restart prometheus
 ```
 
+Pudiendo consultar la información de los diferentes nodos
+
+![Prometheus basico](imgs/prometheus.png)
+
 
 ### Grafana
 

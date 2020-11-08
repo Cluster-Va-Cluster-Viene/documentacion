@@ -1151,10 +1151,11 @@ Creamos usuarios
 useradd --no-create-home --shell /bin/false node_exporter
 ```
 
-Copiamos el binario
+Entramos a la carpeta de node_exporter y copiamos el binario
 
 ```bash
-cp node_exporter-0.18.1.linux-amd64/node_exporter /usr/local/bin
+cd node_exporter-1.0.1.linux-amd64
+cp ./node_exporter /usr/local/bin
 ```
 
 Creamos el servicio para systemd

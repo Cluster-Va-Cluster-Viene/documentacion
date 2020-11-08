@@ -1004,7 +1004,7 @@ iptables -A INPUT -i {interface} -p tcp --destination-port 443 -j DROP
 Descargamos prometheus
 
 ```bash
-wget https://github.com/prometheus/prometheus/releases/download/v2.17.2/prometheus-2.17.2.linux-amd64.tar.gz
+wget https://github.com/prometheus/prometheus/releases/download/v2.22.1/prometheus-2.22.1.linux-amd64.tar.gz
 ```
 
 Descomprimimos
@@ -1033,9 +1033,10 @@ chown prometheus:prometheus /etc/prometheus
 chown prometheus:prometheus /var/lib/prometheus
 ```
 
-copiamos los binarios
+Entramos en la carpeta de prometheus y copiamos los binarios
 
 ```bash
+cd prometheus-2.22.1.linux-amd64
 cp ./prometheus /usr/local/bin/
 cp ./promtool /usr/local/bin/
 ```
@@ -1135,13 +1136,13 @@ systemctl start prometheus
 Descargamos
 
 ```bash
-wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+wget https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
 ```
 
 descomprimimos
 
 ``` bash
-tar xvf node_exporter-0.18.1.linux-amd64.tar.gz
+tar xvf node_exporter-*.tar.gz
 ```
 
 Creamos usuarios

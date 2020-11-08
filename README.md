@@ -465,6 +465,28 @@ Para que la gente no se pueda conectar por la ip publica al puerto 82 y saltarse
 iptables -A INPUT -i {interface} -p tcp --destination-port 82 -j DROP
 ```
 
+Como las iptables si se reinicia el equipo se pierden y no queremos estar agregandolas manualmente vamos a instalar el paquete iptables-persistent
+
+```bash
+apt install iptables-persistent
+```
+
+Las configuraciones se guardan en estos dos ficheros
+
+```
+/etc/iptables/rules.v4
+
+/etc/iptables/rules.v6
+```
+
+Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
+
+```bash
+iptables-save > /etc/iptables/rules.v4
+
+iptables-save > /etc/iptables/rules.v6
+```
+
 ## WAF
 
 Vamos a configurar un nodo para los WAF, esta configuración solo la tendremos que replciar con tantos nodos como queramos y añadirlos al HAProxy en la sección **bk_waf** para que la granja crezca según nuestras necesidades.
@@ -632,6 +654,28 @@ Para que la gente no se pueda conectar por la ip publica al puerto 81, dado que 
 
 ```bash
 iptables -A INPUT -i {interface} -p tcp --destination-port 81 -j DROP
+```
+
+Como las iptables si se reinicia el equipo se pierden y no queremos estar agregandolas manualmente vamos a instalar el paquete iptables-persistent
+
+```bash
+apt install iptables-persistent
+```
+
+Las configuraciones se guardan en estos dos ficheros
+
+```
+/etc/iptables/rules.v4
+
+/etc/iptables/rules.v6
+```
+
+Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
+
+```bash
+iptables-save > /etc/iptables/rules.v4
+
+iptables-save > /etc/iptables/rules.v6
 ```
 
 ## NODOS
@@ -999,6 +1043,28 @@ iptables -A INPUT -i {interface} -p tcp --destination-port 80 -j DROP
 iptables -A INPUT -i {interface} -p tcp --destination-port 443 -j DROP
 ```
 
+Como las iptables si se reinicia el equipo se pierden y no queremos estar agregandolas manualmente vamos a instalar el paquete iptables-persistent
+
+```bash
+apt install iptables-persistent
+```
+
+Las configuraciones se guardan en estos dos ficheros
+
+```
+/etc/iptables/rules.v4
+
+/etc/iptables/rules.v6
+```
+
+Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
+
+```bash
+iptables-save > /etc/iptables/rules.v4
+
+iptables-save > /etc/iptables/rules.v6
+```
+
 ## Monitorización
 
 Para la monitorización de nuestros sistemas vamos a usar el tandem [prometheus](https://prometheus.io/) y [grafana](https://grafana.com/)
@@ -1234,6 +1300,87 @@ server {
 }
 ```
 
+Como no queremos que todo el mundo tenga acceso a nuestros datos vamos a poner una autentificación y a cerrar el puero 9090 y 9100 para que no puedan acceder a la información de manera externa y sin autorización
+
+Instalamos apache2-utils
+
+```bash
+apt install apache2-utils
+```
+
+Creamos un fichero de contraseñas con el usuario admin y ponemos la contraseña que queramos
+
+```bash
+htpasswd -c /etc/nginx/.htpasswd admin
+```
+
+editamos el fichero de configuración de nuestro domnio
+
+```bash
+/etc/nginx/sites-enabled/prometheus
+```
+
+Y agregamos lo siguiente para que use el fichero de contraseñas
+
+```bash
+server {
+    ...
+
+    #addition authentication properties
+    auth_basic  "Protected Area";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
+    location / {
+        proxy_pass           http://localhost:9090/;
+    }
+
+    ...
+}
+```
+comprobamos que las configuraciones sean correcta
+
+```bash
+nginx -t
+```
+
+Reiniciamos nginx y comrobamos su estado
+
+```bash
+service nginx restart
+service nginx status
+```
+
+Los puertos 9000 y 9100 siguen abiertos por lo que vamos a cerrarlos con iptables
+
+```bash
+iptables -A INPUT -p tcp -s localhost --dport 9090 -j ACCEPT
+iptables -A INPUT -p tcp --dport 9090 -j DROP
+iptables -A INPUT -p tcp -s localhost --dport 9100 -j ACCEPT
+iptables -A INPUT -p tcp --dport 9100 -j DROP
+iptables -L
+```
+
+Como las iptables si se reinicia el equipo se pierden y no queremos estar agregandolas manualmente vamos a instalar el paquete iptables-persistent
+
+```bash
+apt install iptables-persistent
+```
+
+Las configuraciones se guardan en estos dos ficheros
+
+```
+/etc/iptables/rules.v4
+
+/etc/iptables/rules.v6
+```
+
+Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
+
+```bash
+iptables-save > /etc/iptables/rules.v4
+
+iptables-save > /etc/iptables/rules.v6
+```
 
 ### node exporter
 

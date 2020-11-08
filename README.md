@@ -74,7 +74,7 @@ Sustituyendo ```yy:yy:yy:yy:yy:yy``` por la mac de nuestra tarjeta de red y ```X
 aplicamos configuración
 
 ```bash
-sudo netplan apply
+netplan apply
 ```
 
 ### HAProxy
@@ -661,8 +661,8 @@ XXX.XXX.XXX.XXX   node-3
 Para tener la ultima versión de GlusterFS vamos a agregar el respositorio PPA
 
 ```bash
-sudo add-apt-repository ppa:gluster/glusterfs-7
-sudo apt-get update
+add-apt-repository ppa:gluster/glusterfs-7
+apt-get update
 ```
 
 Instalamos el paquete software-properties-common
@@ -862,7 +862,7 @@ apt install apt-transport-https
 Actualizamos
 
 ```bash
-sudo apt update
+apt update
 ```
 
 Instalamos MariaDB y galera
@@ -1016,28 +1016,28 @@ tar xfz prometheus-*.tar.gz
 Creamos el usuarios para prometehus
 
 ```bash
-sudo useradd --no-create-home --shell /usr/sbin/nologin prometheus
+useradd --no-create-home --shell /usr/sbin/nologin prometheus
 ```
 
 Creamos las carpetas
 
 ```bash
-sudo mkdir /etc/prometheus
-sudo mkdir /var/lib/prometheus
+mkdir /etc/prometheus
+mkdir /var/lib/prometheus
 ```
 
 Les damos dueño
 
 ```bash
-sudo chown prometheus:prometheus /etc/prometheus
-sudo chown prometheus:prometheus /var/lib/prometheus
+chown prometheus:prometheus /etc/prometheus
+chown prometheus:prometheus /var/lib/prometheus
 ```
 
 copiamos los binarios
 
 ```bash
-sudo cp ./prometheus /usr/local/bin/
-sudo cp ./promtool /usr/local/bin/
+cp ./prometheus /usr/local/bin/
+cp ./promtool /usr/local/bin/
 ```
 
 asignamos usuario
@@ -1060,79 +1060,6 @@ Damos permisos
 chown -R prometheus:prometheus /etc/prometheus/consoles
 chown -R prometheus:prometheus /etc/prometheus/console_libraries
 ```
-
-### NodoMonitor
-
-Descargamos
-
-```bash
-wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
-```
-
-descomprimimos
-
-``` bash
-tar xvf node_exporter-0.18.1.linux-amd64.tar.gz
-```
-
-Creamos usuarios
-
-```bash
-useradd --no-create-home --shell /bin/false node_exporter
-```
-
-Copiamos el binario
-
-```bash
-sudo cp node_exporter-0.18.1.linux-amd64/node_exporter /usr/local/bin
-```
-
-Creamos el servicio para systemd
-
-```bash
-vim /etc/systemd/system/node_exporter.service
-```
-
-```bash
-[Unit]
-Description=Node Exporter
-Wants=network-online.target
-After=network-online.target
-
-[Service]
-User=node_exporter
-Group=node_exporter
-Type=simple
-ExecStart=/usr/local/bin/node_exporter
-
-[Install]
-WantedBy=multi-user.target
-```
-
-recargamos systemd
-
-```bash
-sudo systemctl daemon-reload
-```
-
-Arrancamos el node_exporter
-
-```bash
-sudo systemctl start node_exporter
-```
-
-Compribamos que funciona
-
-```bash
-sudo systemctl status node_exporter
-```
-
-Lo activamos para arranque de maquina
-
-```bash
-sudo systemctl enable node_exporter
-```
-
 Configuramos prometheus
 
 ```bash
@@ -1158,7 +1085,7 @@ scrape_configs:
 Permisos
 
 ```bash
-sudo chown prometheus:prometheus /etc/prometheus/prometheus.yml
+chown prometheus:prometheus /etc/prometheus/prometheus.yml
 ```
 
 Primer arranque de prometehus
@@ -1195,21 +1122,96 @@ vim /etc/systemd/system/prometheus.service
 ```
 
 ```bash
-sudo systemctl daemon-reload
+systemctl daemon-reload
 ```
 
 ```bash
-sudo systemctl start prometheus
+systemctl start prometheus
+```
+
+
+### NodoMonitor
+
+Descargamos
+
+```bash
+wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+```
+
+descomprimimos
+
+``` bash
+tar xvf node_exporter-0.18.1.linux-amd64.tar.gz
+```
+
+Creamos usuarios
+
+```bash
+useradd --no-create-home --shell /bin/false node_exporter
+```
+
+Copiamos el binario
+
+```bash
+cp node_exporter-0.18.1.linux-amd64/node_exporter /usr/local/bin
+```
+
+Creamos el servicio para systemd
+
+```bash
+vim /etc/systemd/system/node_exporter.service
+```
+
+```bash
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+```
+
+recargamos systemd
+
+```bash
+systemctl daemon-reload
+```
+
+Arrancamos el node_exporter
+
+```bash
+systemctl start node_exporter
+```
+
+Compribamos que funciona
+
+```bash
+systemctl status node_exporter
+```
+
+Lo activamos para arranque de maquina
+
+```bash
+systemctl enable node_exporter
 ```
 
 ### Grafana
 
 ```bash
-sudo apt-get install -y adduser libfontconfig1
+apt-get install -y adduser libfontconfig1
 wget https://dl.grafana.com/oss/release/grafana_6.7.3_amd64.deb
-sudo dpkg -i grafana_6.7.3_amd64.deb
+dpkg -i grafana_6.7.3_amd64.deb
 ```
 
 ```bash
-sudo systemctl daemon-reload && sudo systemctl enable grafana-server && sudo systemctl start grafana-server
+systemctl daemon-reload
+systemctl enable grafana-server
+systemctl start grafana-server
 ```

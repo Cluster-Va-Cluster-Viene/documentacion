@@ -1141,7 +1141,7 @@ Una opción para ayudar a proteger nuestro servidor Prometheus es colocarlo detr
 Instalmos nginx
 
 ```bash
-sudo apt install nginx
+apt install nginx
 ```
 
 Vamos a crear un sitio nuevo
@@ -1173,8 +1173,8 @@ nginx -t
 Reiniciamos nginx y comrobamos su estado
 
 ```bash
-sudo service nginx restart
-sudo service nginx status
+service nginx restart
+service nginx status
 ```
 
 Ahora ya podemos acceder a http://tu-dominio.com
@@ -1184,6 +1184,56 @@ Si accedemos por la ip veremos la web por defecto de nginx si no queremos que es
 ```bash
 rm /etc/nginx/sites-enabled/default
 ```
+
+Para activar Let's Encrypt tenemos que instalar nuestro amigo certbot
+
+```bash
+apt install certbot python3-certbot-nginx
+```
+
+ahora solo tenemos que ejecutar e ir respondiendo las preguntas que nos hace
+
+```bash
+certbot --nginx
+```
+
+Podemos ver los cambios que realizo certbot en el fichero de nuestro dominio
+
+```bash
+vim /etc/nginx/sites-enabled/prometheus
+```
+
+```vim
+server {
+    server_name  tu-dominio.com;
+
+    location / {
+        proxy_pass           http://localhost:9090/;
+    }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/tu-dominio.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/tu-dominio.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+server {
+    if ($host = tu-dominio.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    listen [::]:80;
+    server_name  tu-dominio.com;
+    return 404; # managed by Certbot
+
+
+}
+```
+
 
 ### node exporter
 

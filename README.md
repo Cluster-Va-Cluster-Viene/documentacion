@@ -443,7 +443,7 @@ echo -e "\n\tGetting TOR node list from dan.me.uk\n"
 wget -q -O - "https://www.dan.me.uk/torlist/" -U SXTorBlocker/1.0 > /tmp/full.tor
 wget -q -O - "https://check.torproject.org/cgi-bin/TorBulkExitList.py?ip=1.1.1.1" -U SXTorBlocker/1.0 --no-check-certificate >> /tmp/full.tor
 sed -i 's|^#.*$||g' /tmp/full.tor
-CMD=$(cat /tmp/full.tor | uniq | sort | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}')
+CMD=$(cat /tmp/full.tor | sort | uniq | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}')
 iptables -F TOR
 for IP in $CMD; do
   let COUNT=COUNT+1

@@ -61,7 +61,7 @@ mv /usr/share/modsecurity-crs /usr/share/modsecurity-crs.bk
 Descargamos las nuevas reglas
 
 ```bash
-git clone https://github.com/SpiderLabs/owasp-modsecurity-crs.git /usr/share/modsecurity-crs
+git clone https://github.com/coreruleset/coreruleset.git /usr/share/modsecurity-crs
 ```
 
 Copiamos la configuración por defecto de las reglas descargas

@@ -363,7 +363,7 @@ vim /root/certs/deployhook.sh
 
 ```bash
 #!/bin/bash
-IP=10.0.46.48
+IP=xxx.xxx.xxx.xxx
 
 cat $RENEWED_LINEAGE/fullchain.pem $RENEWED_LINEAGE/privkey.pem>$RENEWED_LINEAGE/haproxy.pem
 if ! grep -q $RENEWED_LINEAGE "/etc/haproxy/certs.txt"

@@ -1,6 +1,6 @@
 # Visión general
 
-Se va a construir un cluster para mejorar la disponibilidad de los sistemas, optimizar los tiempos de carga y mejorar la seguridad, todos los servidores se montan sobre Ubuntu 22.04 LTS (Jammy Jellyfish), se construirá en maquinas virtuales en VirtualBox
+Se va a construir un cluster para mejorar la disponibilidad de los sistemas, optimizar los tiempos de carga y mejorar la seguridad, todos los servidores se montan sobre Ubuntu 22.04 LTS, se construira en maquinas virtuales en VirtualBox
 
 ## Objetivos
 

@@ -60,3 +60,4 @@ Las ips internas usadas en este caso son las siguiente
 * Nodo 3 -> 192.168.10.5
 * WAF 1 -> 192.168.10.6
 * WAF 2 -> 192.168.10.7
+* Monitorización -> 192.168.10.100

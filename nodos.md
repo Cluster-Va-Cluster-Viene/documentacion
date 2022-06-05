@@ -175,7 +175,11 @@ Agregamos apache al arranque del sistema
 systemctl enable apache2
 ```
 
-Ahora vamos a ocultar las versiones de nuestro servidor para dar la menor información posible a los atacantes, para ello editamos el siguiente fichero
+#### Eliminar el banner de la versión del servidor
+
+Apache por defecto nos muestra en las peticiones su versión y el sistema operativo en el que esta corriendo.
+
+Vamos a ocultar las versiones y el sistema operativo de nuestro servidor para dar la menor información posible a los atacantes, para ello editamos el siguiente fichero
 
 ```bash
 vim /etc/apache2/conf-available/security.conf
@@ -189,7 +193,27 @@ ServerTokens Prod
 ServerSignature Off
 ```
 
-Ya solo nos queda reiniciar apache para cargar todos los cambios y nuestro primer WAF de la granja estaría listo
+#### Deshabilitar el listado de directorios en el navegador
+
+Una configuración que trae por defecto apache es listar los ficheros de los directorios por lo que se puede producir una fuga de información si no nos acordamos de poner un fichero index.php o index.html para evitar el listado, para no tener que revisar todas las carpetas.
+
+Editamos el fichero
+
+```bash
+vim /etc/apache2/apache2.conf
+```
+
+y buscamos donde se encuentre la opcion Indexes y le ponemos un guion delante quedando de la siguiente manera o podemos eliminar directamente la opcion
+
+```vim
+<Directory /var/www/>
+        Options -Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+</Directory>
+```
+
+Reiniciamos apache para aplicar los cambios.
 
 ```bash
 systemctl restart apache2
@@ -212,6 +236,15 @@ chmod +x mariadb_repo_setup
 ```
 
 Ejecutamos el script para que nos agregue los repositorios
+
+{% hint style="danger" %}
+Como los repositorios de mariadb no han sido actualizados todavía a "22.04 (Jammy Jellyfish)" No lanzaremos los repositorios oficiales, por lo que las versiones que se nos instalaran son las siguiente:
+
+* mariadb 10.6.7 vs 10.6.8 [_Changelog_](https://mariadb.com/kb/en/mariadb-1068-release-notes/)__
+* galeraCuster: 26.4.9 vs 26.4.12 [_Changelog_](https://fromdual.com/galera-cluster-release-notes)__
+
+Cuando se lance el repositorio seria recomendable activarlos.
+{% endhint %}
 
 ```bash
 ./mariadb_repo_setup
@@ -271,7 +304,7 @@ wsrep_sst_method=rsync
 
 # Galera Node Configuration
 wsrep_node_address="xxx.xxx.xxx.xxx"
-wsrep_node_name="node1"
+wsrep_node_name="node-1"
 ```
 
 Replicamos esta configuración en el resto de los nodos cambiado los diferentes datos.
@@ -307,7 +340,7 @@ mysql -u root -p -e "SHOW STATUS LIKE 'wsrep_cluster_size'"
 En el resto de los nodos arrancamos mysql de manera normal
 
 ```bash
-systemctl start mysql
+systemctl start mariadb
 ```
 
 Repetimos el comando de antes para ver el aumento del cluster

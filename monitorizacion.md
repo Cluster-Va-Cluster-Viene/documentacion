@@ -4,10 +4,10 @@ Para la monitorización de nuestros sistemas vamos a usar el tandem [prometheus]
 
 ### Prometheus
 
-Descargamos prometheus
+Nos servira para recuperar datos de unos sensores que pondremos en nuestros sistemas y crear alertas por si algo sucede, para empezar vamos a descargamos prometheus
 
 ```bash
-wget https://github.com/prometheus/prometheus/releases/download/v2.22.1/prometheus-2.22.1.linux-amd64.tar.gz
+wget https://github.com/prometheus/prometheus/releases/download/v2.36.0/prometheus-2.36.0.linux-amd64.tar.gzr.gz
 ```
 
 Descomprimimos
@@ -29,7 +29,7 @@ mkdir /etc/prometheus
 mkdir /var/lib/prometheus
 ```
 
-Les damos dueño
+Les asignamos el usuario creado anteriormente
 
 ```bash
 chown prometheus:prometheus /etc/prometheus
@@ -39,12 +39,12 @@ chown prometheus:prometheus /var/lib/prometheus
 Entramos en la carpeta de prometheus y copiamos los binarios
 
 ```bash
-cd prometheus-2.22.1.linux-amd64
+cd prometheus-2.36.0.linux-amd64
 cp ./prometheus /usr/local/bin/
 cp ./promtool /usr/local/bin/
 ```
 
-asignamos usuario
+asignamos usuario prometheus
 
 ```bash
 chown prometheus:prometheus /usr/local/bin/prometheus
@@ -65,7 +65,7 @@ chown -R prometheus:prometheus /etc/prometheus/consoles
 chown -R prometheus:prometheus /etc/prometheus/console_libraries
 ```
 
-Configuramos prometheus
+Ahora que lo tenemos instalado lo vamos a configurar, para ello creamos el siguiente fichero
 
 ```bash
 vim /etc/prometheus/prometheus.yml
@@ -87,19 +87,21 @@ scrape_configs:
       - targets: ['localhost:9090']
 ```
 
-Permisos
+Con esto definimos cada cuanto tiene que scrapear los datos de los diferentes nodos que configuraremos más adelante
+
+Asignamos el usuario a la configuración
 
 ```bash
 chown prometheus:prometheus /etc/prometheus/prometheus.yml
 ```
 
-Primer arranque de prometehus
+Primer arranque de prometehus para ver que esta todo en orden, donde le decimos que configuración tiene que cargar, donde va a guardar los datos (podríamos montarlo en un glusterfs para tener una replica fuera) y la configuración de la versión web.
 
 ```bash
 sudo -u prometheus /usr/local/bin/prometheus --config.file /etc/prometheus/prometheus.yml --storage.tsdb.path /var/lib/prometheus/ --web.console.templates=/etc/prometheus/consoles --web.console.libraries=/etc/prometheus/console_libraries
 ```
 
-Lo añadimos a systemd
+Para tenerlo en el arranque de manera automática lo vamos a configurar en systemd, para ello creamos el siguiente fichero.
 
 ```bash
 vim /etc/systemd/system/prometheus.service
@@ -126,6 +128,8 @@ vim /etc/systemd/system/prometheus.service
   WantedBy=multi-user.target
 ```
 
+Recargamos el demonio de systemd y ya lo tendremos disponible.
+
 ```bash
 systemctl daemon-reload
 ```
@@ -138,7 +142,7 @@ systemctl start prometheus
 
 Una opción para ayudar a proteger nuestro servidor Prometheus es colocarlo detrás de un proxy inverso para que luego podamos agregar SSL y una capa de autenticación sobre la interfaz web predeterminada sin restricciones de Prometheus.
 
-Instalmos nginx
+Instalamos nginx
 
 ```bash
 apt install nginx
@@ -173,8 +177,8 @@ nginx -t
 Reiniciamos nginx y comprobamos su estado
 
 ```bash
-service nginx restart
-service nginx status
+systemctl start nginx
+systemctl status nginx
 ```
 
 Ahora ya podemos acceder a http://tu-dominio.com
@@ -248,10 +252,10 @@ Creamos un fichero de contraseñas con el usuario admin y ponemos la contraseña
 htpasswd -c /etc/nginx/.htpasswd admin
 ```
 
-editamos el fichero de configuración de nuestro domino
+editamos el fichero de configuración de nuestro prometheus
 
 ```bash
-/etc/nginx/sites-enabled/prometheus
+vim /etc/nginx/sites-enabled/prometheus
 ```
 
 Y agregamos lo siguiente para que use el fichero de contraseñas
@@ -281,8 +285,8 @@ nginx -t
 Reiniciamos nginx y comprobamos su estado
 
 ```bash
-service nginx restart
-service nginx status
+systemctl restart nginx
+systemctl status nginx
 ```
 
 Los puertos 9000 y 9100 siguen abiertos por lo que vamos a cerrarlos con iptables
@@ -295,7 +299,7 @@ iptables -A INPUT -p tcp --dport 9100 -j DROP
 iptables -L
 ```
 
-Como las iptables si se reinicia el equipo se pierden y no queremos estar agregandolas manualmente vamos a instalar el paquete iptables-persistent
+Como las iptables si se reinicia el equipo se pierden y no queremos estar agregándolas manualmente vamos a instalar el paquete iptables-persistent
 
 ```bash
 apt install iptables-persistent
@@ -309,7 +313,7 @@ Las configuraciones se guardan en estos dos ficheros
 /etc/iptables/rules.v6
 ```
 
-Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
+Si hacemos algún cambio a las iptables nos tenemos que acordar de guardarlas
 
 ```bash
 iptables-save > /etc/iptables/rules.v4
@@ -322,7 +326,7 @@ iptables-save > /etc/iptables/rules.v6
 Descargamos
 
 ```bash
-wget https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
 ```
 
 descomprimimos
@@ -340,11 +344,11 @@ useradd --no-create-home --shell /bin/false node_exporter
 Entramos a la carpeta de node\_exporter y copiamos el binario
 
 ```bash
-cd node_exporter-1.0.1.linux-amd64
+cd node_exporter-1.3.1.linux-amd64
 cp ./node_exporter /usr/local/bin
 ```
 
-Creamos el servicio para systemd
+Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
 
 ```bash
 vim /etc/systemd/system/node_exporter.service
@@ -396,7 +400,7 @@ Vamos a comunicar el node\_exporter con Prometheus para ello vamos a editar la c
 vim /etc/prometheus/prometheus.yml
 ```
 
-Y añadimos lo siguiente
+Y añadimos lo siguiente en la zona de scrape\_configs
 
 ```bash
   - job_name: 'node_exporter'
@@ -405,16 +409,151 @@ Y añadimos lo siguiente
       - targets: ['localhost:9100']
 ```
 
-Recargamos el demonio de systemctl y reiniciamos prometheus
+&#x20;Reiniciamos prometheus
 
 ```bash
-systemctl daemon-reload
 systemctl restart prometheus
 ```
 
-Pudiendo consultar la información de los diferentes nodos
+Ahora repetimos el proceso con el resto de los nodos y servidores de nuestro HA y ya podemos consultar la información de los diferentes nodos
 
 ![Prometheus basico](imgs/prometheus.png)
+
+### Apache exporter
+
+### &#x20;Mysql Exporter
+
+Vamos a monitorizar nuestro cluster de galera, para ello lo primera que hacemos en uno de los nodos crear un usuario
+
+```sql
+CREATE USER 'exporter'@'localhost' IDENTIFIED BY 'XXXXXXXX' WITH MAX_USER_CONNECTIONS 3;
+GRANT PROCESS, REPLICATION CLIENT, REPLICATION SLAVE, SUPER SELECT ON *.* TO 'exporter'@'localhost
+FLUSH PRIVILEGES;
+```
+
+Descargamos el mysql exporter en todos los nodos
+
+```bash
+wget https://github.com/prometheus/mysqld_exporter/releases/download/v0.14.0/mysqld_exporter-0.14.0.linux-amd64.tar.gz
+```
+
+descomprimimos
+
+```bash
+tar xvf mysqld_exporter-*.tar.gz
+```
+
+Creamos usuarios
+
+```bash
+useradd --no-create-home --shell /bin/false mysql_exporter
+```
+
+Entramos a la carpeta de mysql\_exporter y copiamos el binario
+
+```bash
+cd mysqld_exporter-0.14.0.linux-amd64
+cp ./mysqld_exporter /usr/local/bin/
+```
+
+Creamos un fichero para guardar el usuario y contraseña que hemos asignado antes
+
+```bash
+vim /etc/.mysqld_exporter.cnf
+```
+
+```vim
+[client]
+user=exporter
+password=XXXXXXXX
+```
+
+Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
+
+```bash
+vim /etc/systemd/system/mysql_exporter.service
+```
+
+```bash
+[Unit]
+Description=Prometheus MySQL Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=mysql_exporter
+Group=mysql_exporter
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/mysqld_exporter \
+--config.my-cnf /etc/.mysqld_exporter.cnf \
+--collect.global_status \
+--collect.info_schema.innodb_metrics \
+--collect.auto_increment.columns \
+--collect.info_schema.processlist \
+--collect.binlog_size \
+--collect.info_schema.tablestats \
+--collect.global_variables \
+--collect.info_schema.query_response_time \
+--collect.info_schema.userstats \
+--collect.info_schema.tables \
+--collect.perf_schema.tablelocks \
+--collect.perf_schema.file_events \
+--collect.perf_schema.eventswaits \
+--collect.perf_schema.indexiowaits \
+--collect.perf_schema.tableiowaits \
+--collect.slave_status \
+
+[Install]
+WantedBy=multi-user.target
+```
+
+recargamos systemd
+
+```bash
+systemctl daemon-reload
+```
+
+Arrancamos el mysql\_exporter
+
+```bash
+systemctl start mysql_exporter
+```
+
+Comprobamos que funciona
+
+```bash
+systemctl status mysql_exporter
+```
+
+Lo activamos para arranque de maquina
+
+```bash
+systemctl enable mysql_exporter
+```
+
+Vamos a comunicar el mysql\_exporter con Prometheus para ello vamos a editar la configuración de Prometheus
+
+```bash
+vim /etc/prometheus/prometheus.yml
+```
+
+Y añadimos lo siguiente en la zona de scrape\_configs
+
+```vim
+  - job_name: "node1-mysql"
+    scrape_interval: "15s"
+    static_configs:
+      - targets: ['xxx.xxx.xxx:9104']
+```
+
+&#x20;Reiniciamos prometheus
+
+```bash
+systemctl restart prometheus
+```
+
+Ahora repetimos el proceso con el resto de los nodos de galera pero sin tener que crear el usuario porque ya se replico automaticamente.
 
 ### Grafana
 

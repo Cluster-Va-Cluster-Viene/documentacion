@@ -237,6 +237,15 @@ chmod +x mariadb_repo_setup
 
 Ejecutamos el script para que nos agregue los repositorios
 
+{% hint style="danger" %}
+Como los repositorios de mariadb no han sido actualizados todavía a "22.04 (Jammy Jellyfish)" No lanzaremos los repositorios oficiales, por lo que las versiones que se nos instalaran son las siguiente:
+
+* mariadb 10.6.7 vs 10.6.8 [_Changelog_](https://mariadb.com/kb/en/mariadb-1068-release-notes/)__
+* galeraCuster: 26.4.9 vs 26.4.12 [_Changelog_](https://fromdual.com/galera-cluster-release-notes)__
+
+Cuando se lance el repositorio seria recomendable activarlos.
+{% endhint %}
+
 ```bash
 ./mariadb_repo_setup
 ```
@@ -295,7 +304,7 @@ wsrep_sst_method=rsync
 
 # Galera Node Configuration
 wsrep_node_address="xxx.xxx.xxx.xxx"
-wsrep_node_name="node1"
+wsrep_node_name="node-1"
 ```
 
 Replicamos esta configuración en el resto de los nodos cambiado los diferentes datos.
@@ -331,7 +340,7 @@ mysql -u root -p -e "SHOW STATUS LIKE 'wsrep_cluster_size'"
 En el resto de los nodos arrancamos mysql de manera normal
 
 ```bash
-systemctl start mysql
+systemctl start mariadb
 ```
 
 Repetimos el comando de antes para ver el aumento del cluster

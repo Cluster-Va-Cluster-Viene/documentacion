@@ -141,10 +141,10 @@ Con esto tendríamos una configuración minima para poder usar nuestro tipo de i
 
 ### Keepalived
 
-Podemos instalar keepalived desde código o desde repositorio, la versión de repositiro es un poco antigua para nos vale para nuestro cometido.
+Instalamos keepalived y psmisc
 
 ```bash
-apt install keepalived
+apt install keepalived psmisc
 ```
 
 Las configraciones entre los dos nodos son muy parecidas solo teniendo que cambiar la prioridad y el estado.
@@ -164,7 +164,7 @@ global_defs {
 }
 
 vrrp_script chk_haproxy {
-        script "/usr/bin/killall -0 haproxy" # Comprobamos que el Haproxy esta vivo
+        script "killall -0 haproxy" # Comprobamos que el Haproxy esta vivo
         interval 2 #Cada 2 segundo
         weight 2 # Agregamos 2 puntos de peso si esta OK
 }
@@ -188,6 +188,26 @@ vrrp_instance VI_2 {
                 chk_haproxy
         }
 }
+
+#Ip flotante exterma
+vrrp_instance VI_1 {
+        interface ens3 # Interfaz que monitorizamos
+        state MASTER # MASTER en haproxy1, BACKUP en haproxy2
+        virtual_router_id 23
+        priority 101 # 101 en haproxy1, 100 en haproxy2
+
+        authentication {
+                auth_type PASS
+                auth_pass PASSWORD
+        }
+
+        virtual_ipaddress {
+                IP_FLOTANTE dev ens3 # Dirrección virtual
+        }
+        track_script {
+                chk_haproxy
+        }
+}
 ```
 
 #### Nodo Backup
@@ -205,7 +225,7 @@ global_defs {
 }
 
 vrrp_script chk_haproxy {
-        script "/usr/bin/killall -0 haproxy" # Comprobamos que el Haproxy esta vivo
+        script "killall -0 haproxy" # Comprobamos que el Haproxy esta vivo
         interval 2 #Cada 2 segundo
         weight 2 # Agregamos 2 puntos de peso si esta OK
 }
@@ -213,7 +233,7 @@ vrrp_script chk_haproxy {
 #Ip flotante dentro del VRack
 vrrp_instance VI_2 {
         interface ens4 # Interfaz que monitorizamos
-        state MASTER # BACKUP en haproxy1, BACKUP en haproxy2
+        state MASTER # MASTER en haproxy1, BACKUP en haproxy2
         virtual_router_id 24
         priority 100 # 101 en haproxy1, 100 en haproxy2
 
@@ -224,6 +244,26 @@ vrrp_instance VI_2 {
 
         virtual_ipaddress {
                 IP_FLOTANTE dev ens4 # Dirrección virtual
+        }
+        track_script {
+                chk_haproxy
+        }
+}
+
+#Ip flotante exterma
+vrrp_instance VI_1 {
+        interface ens3 # Interfaz que monitorizamos
+        state MASTER # MASTER en haproxy1, BACKUP en haproxy2
+        virtual_router_id 23
+        priority 101 # 101 en haproxy1, 100 en haproxy2
+
+        authentication {
+                auth_type PASS
+                auth_pass PASSWORD
+        }
+
+        virtual_ipaddress {
+                IP_FLOTANTE dev ens3 # Dirrección virtual
         }
         track_script {
                 chk_haproxy

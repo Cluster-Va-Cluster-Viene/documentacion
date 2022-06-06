@@ -129,7 +129,11 @@ Quedando de la siguiente manera, poniendo en IP\_WAF la ip interna de dicho serv
 </VirtualHost>
 ```
 
-Ahora vamos a ocultar las versiones de nuestro servidor para dar la menor información posible a los atacantes, para ello editamos el siguiente fichero
+#### Eliminar el banner de la versión del servidor
+
+Apache por defecto nos muestra en las peticiones su versión y el sistema operativo en el que esta corriendo.
+
+Vamos a ocultar las versiones y el sistema operativo de nuestro servidor para dar la menor información posible a los atacantes, para ello editamos el siguiente fichero
 
 ```bash
 vim /etc/apache2/conf-available/security.conf
@@ -142,6 +146,8 @@ ServerTokens Prod
 
 ServerSignature Off
 ```
+
+#### Healthchecks para HAProxy
 
 Ahora tenemos que agregar una regla personalizada para que el HAProxy sepa que nuestros WAF están vivos, para ello creamos el fichero
 

@@ -1,4 +1,6 @@
-# Bloquenado TOR
+# Fortificando las puertas
+
+### Bloquenado TOR
 
 Si queremos bloquear los nodos TOR para evitar que se conecten desde dicha red que en muchos casos se suele usar para atacar dado el grado de anonimato que proporciona, podemos usar el siguiente script:
 
@@ -57,4 +59,69 @@ Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
 iptables-save > /etc/iptables/rules.v4
 
 iptables-save > /etc/iptables/rules.v6
+```
+
+### PortSentry
+
+Una cosa que queremos es bloquear los posibles escaneos de red y de paso dar información no veraz para confundir a nuestros atacantes, para ello disponemos del paquete PortSentry.
+
+```bash
+apt install portsentry
+```
+
+Lo primero que tenemos que hacer es configurar nuestra ip o rango de trabajo en el fichero que sirve para ignorar los escaneos no sea que nos quedemos fuera.
+
+```bash
+vim  /etc/portsentry/portsentry.ignore.static
+```
+
+```
+# Example:
+
+192.168.2.0/24
+192.168.0.0/16
+192.168.2.1/32
+```
+
+Al arrancar el servicio, el contenido del archivo se añadirá al archivo _/etc/portsentry/portsentry.ignore_.
+
+Utilizamos portsentry en modo avanzado para los protocolos TCP y UDP. Para ello, debe modificar
+
+```bash
+vim /etc/default/portsentry
+```
+
+```vim
+TCP_MODE="atcp"
+UDP_MODE="audp"
+```
+
+Por defecto PortSentry esta en modo detección solo pero a nosotros nos interesa que detecte y bloque los escaneos
+
+```bash
+vim /etc/portsentry/portsentry.conf 
+```
+
+```vim
+##################
+# Ignore Options #
+##################
+# 0 = Do not block UDP/TCP scans.
+# 1 = Block UDP/TCP scans.
+# 2 = Run external command only (KILL_RUN_CMD)
+
+BLOCK_UDP="1"
+BLOCK_TCP="1"
+```
+
+Optamos por un bloqueo de personas maliciosas a través de iptables. Por lo tanto comentaremos en todas las líneas del archivo de configuración que comienzan con KILL\_ROUTE excepto la de iptables
+
+```vim
+KILL_ROUTE="/sbin/iptables -I INPUT -s $TARGET$ -j DROP"
+```
+
+Por defecto PortSentry mete tambien los escaneos dentro del /etc/hosts.deny, gracias a la siguiente linea si no queremos que esto pase podemos comentarla.
+
+```vim
+KILL_HOSTS_DENY="ALL: $TARGET$ : DENY"
 ```

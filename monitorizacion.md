@@ -458,19 +458,9 @@ cd mysqld_exporter-0.14.0.linux-amd64
 cp ./mysqld_exporter /usr/local/bin/
 ```
 
-Creamos un fichero para guardar el usuario y contraseña que hemos asignado antes
-
-```bash
-vim /etc/.mysqld_exporter.cnf
-```
-
-```vim
-[client]
-user=exporter
-password=XXXXXXXX
-```
-
-Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
+{% hint style="warning" %}
+Los datos de conexion los ponemos dentro del systemd dado que usando el parametro _config.my-cnf_ nos falla la conexion&#x20;
+{% endhint %}
 
 ```bash
 vim /etc/systemd/system/mysql_exporter.service
@@ -487,24 +477,8 @@ User=mysql_exporter
 Group=mysql_exporter
 Type=simple
 Restart=always
-ExecStart=/usr/local/bin/mysqld_exporter \
---config.my-cnf /etc/.mysqld_exporter.cnf \
---collect.global_status \
---collect.info_schema.innodb_metrics \
---collect.auto_increment.columns \
---collect.info_schema.processlist \
---collect.binlog_size \
---collect.info_schema.tablestats \
---collect.global_variables \
---collect.info_schema.query_response_time \
---collect.info_schema.userstats \
---collect.info_schema.tables \
---collect.perf_schema.tablelocks \
---collect.perf_schema.file_events \
---collect.perf_schema.eventswaits \
---collect.perf_schema.indexiowaits \
---collect.perf_schema.tableiowaits \
---collect.slave_status \
+Environment='DATA_SOURCE_NAME=exporter:exp789@(192.168.10.3:3306)/'
+ExecStart=/usr/local/bin/mysqld_exporter --collect.info_schema.tables --collect.info_schema.tablestats
 
 [Install]
 WantedBy=multi-user.target

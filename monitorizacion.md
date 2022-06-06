@@ -136,7 +136,10 @@ Recargamos el demonio de systemd y ya lo tendremos disponible.
 systemctl daemon-reload
 ```
 
+Lo agregamos al arranque y lo arrancamos
+
 ```bash
+systemctl enable prometheus
 systemctl start prometheus
 ```
 
@@ -423,6 +426,96 @@ Ahora repetimos el proceso con el resto de los nodos y servidores de nuestro HA 
 
 ### Apache exporter
 
+Para monitorizar apache tenemos que tener el modulo de `mod_status` activado y la locacilizacion `/server-status` activada en este caso ubuntu lo trate configurado por defecto, por lo que no tendriamos que tocar nada.
+
+Para poder usar el exporter lo primero que tenemos que hacer es instalar Go, lo podemos hacer desde los binarios o desde el repositorio como no vamos a programar en este caso lo instalaremos desde los repositorios.
+
+```bash
+sudo apt install golang-go 
+```
+
+Vamos a crear un usuario para el exporter como en los otros casos
+
+```bash
+ useradd apache_exporter -s /sbin/nologin
+```
+
+Ahora vamos a bajar el codigo de la ultima version y vamos a compilarlo, nos clonamos el repositorio
+
+```bash
+git clone https://github.com/Lusitaniae/apache_exporter.git
+cd apache_exporter
+```
+
+Instalamos las dependencias de Go y compilamos
+
+```bash
+go get -v github.com/Lusitaniae/apache_exporter
+go build
+```
+
+Copiamos el fichero generado
+
+```bash
+cp apache_exporter /usr/sbin/
+```
+
+Le damos permisos
+
+```bash
+chown apache_exporter:apache_exporter /usr/sbin/apache_exporter
+```
+
+Lo agregamos a systemd
+
+```bash
+vim /etc/systemd/system/apache_exporter.service
+```
+
+```vim
+[Unit]
+Description=Apache Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=apache_exporter
+Group=apache_exporter
+Type=simple
+Restart=always
+EnvironmentFile=/etc/sysconfig/apache_exporter
+ExecStart=/usr/sbin/apache_exporter $OPTIONS
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Generamos la configuracion, donde escuchamos y donde publicamos la informacion para prometheus
+
+```bash
+vim /etc/apache_exporter
+```
+
+```vim
+OPTIONS="--scrape_uri='http://127.0.0.1/server-status/?auto' --telemetry.address='192.168.10.4:9117'"
+```
+
+Recargarmos systemd
+
+```bash
+systemctl daemon-reload
+systemctl start apache_exporter
+systemctl enable apache_exporter
+```
+
+Agregamos a prometheus el exporter
+
+```vim
+  - job_name: 'node1-apache'
+    static_configs:
+      - targets: ['xxx.xxx.xxx.xxx:9117']
+```
+
 ### &#x20;Mysql Exporter
 
 Vamos a monitorizar nuestro cluster de galera, para ello lo primera que hacemos en uno de los nodos crear un usuario
@@ -451,7 +544,7 @@ Creamos usuarios
 useradd --no-create-home --shell /bin/false mysql_exporter
 ```
 
-Entramos a la carpeta de mysql\_exporter y copiamos el binario
+Entramos a la carpeta de `mysql_exporter` y copiamos el binario
 
 ```bash
 cd mysqld_exporter-0.14.0.linux-amd64
@@ -508,19 +601,19 @@ Lo activamos para arranque de maquina
 systemctl enable mysql_exporter
 ```
 
-Vamos a comunicar el mysql\_exporter con Prometheus para ello vamos a editar la configuración de Prometheus
+Vamos a comunicar el `mysql_exporter` con Prometheus para ello vamos a editar la configuración de Prometheus
 
 ```bash
 vim /etc/prometheus/prometheus.yml
 ```
 
-Y añadimos lo siguiente en la zona de scrape\_configs
+Y añadimos lo siguiente en la zona de `scrape_configs`
 
 ```vim
   - job_name: "node1-mysql"
     scrape_interval: "15s"
     static_configs:
-      - targets: ['xxx.xxx.xxx:9104']
+      - targets: ['xxx.xxx.xxx.xxx:9104']
 ```
 
 &#x20;Reiniciamos prometheus

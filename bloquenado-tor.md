@@ -27,7 +27,7 @@ done
   iptables -A TOR -j RETURN
 ```
 
-luego solo tenemos que poner un crontab para que se actualice periodicamente:
+luego solo tenemos que poner un crontab para que se actualice periódicamente:
 
 ```bash
 0 */2 * * * /opt/scripts/./tor-iptables.sh
@@ -120,8 +120,86 @@ Optamos por un bloqueo de personas maliciosas a través de iptables. Por lo tant
 KILL_ROUTE="/sbin/iptables -I INPUT -s $TARGET$ -j DROP"
 ```
 
-Por defecto PortSentry mete tambien los escaneos dentro del /etc/hosts.deny, gracias a la siguiente linea si no queremos que esto pase podemos comentarla.
+Por defecto PortSentry mete también los escaneos dentro del /etc/hosts.deny, gracias a la siguiente linea si no queremos que esto pase podemos comentarla.
 
 ```vim
 KILL_HOSTS_DENY="ALL: $TARGET$ : DENY"
+```
+
+### Fail2ban
+
+Otra cosa que no queremos es que la gente se ponga a dar martillazos contra nuestras puertas para intentar entrar para ello disponemos de la herramienta Fail2Ban.
+
+```bash
+apt install fail2ban
+```
+
+La instalación predeterminada de Fail2ban viene con dos archivos de configuración, /etc/fail2ban/jail.conf y /etc/fail2ban/jail.d/defaults-debian.conf. No se recomienda modificar estos archivos, ya que pueden sobrescribirse cuando se actualiza el paquete.
+
+Fail2ban lee los archivos de configuración en el siguiente orden. Cada archivo .local anula la configuración del archivo .conf:
+
+* `/etc/fail2ban/jail.conf`
+* `/etc/fail2ban/jail.d/*.conf`
+* `/etc/fail2ban/jail.local`
+* `/etc/fail2ban/jail.d/*.local`
+
+Copiamos la configuración por defecto que luego modificaremos, podríamos hacernos nosotros la configuración totalmente a mano.
+
+```bash
+cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+```
+
+```bash
+vim /etc/fail2ban/jail.local
+```
+
+Podemos cambiar la cantidad de intentos, el tiempo de baneo o el tiempo que hay entre los máximos intentos.
+
+```vim
+# "bantime" is the number of seconds that a host is banned.
+bantime  = 10m
+
+# A host is banned if it has generated "maxretry" during the last "findtime"
+# seconds.
+findtime  = 10m
+
+# "maxretry" is the number of failures before a host get banned.
+maxretry = 5
+```
+
+Si queremos estar atentos a las ips bloqueadas en todo momento podemos configurar un email para que nos notifique el sistema
+
+```vim
+# Destination email address used solely for the interpolations in
+# jail.{conf,local,d/*} configuration files.
+destemail = root@localhost
+
+# Sender email address used solely for some actions
+sender = root@<fq-hostname>
+
+# E-mail action. Since 0.8.1 Fail2Ban uses sendmail MTA for the
+# mailing. Change mta configuration parameter to mail if you want to
+# revert to conventional 'mail'.
+mta = sendmail
+
+```
+
+Por defecto fail2ban tiene un monto de jaulas que podemos activar, por defecto en debian viene activada la del ssh por lo que no es necesario volver a activar, pero si queremos activar cualquier otra solo tenemos que añadir en su bloque de configuración enable=true
+
+```vim
+[apache-badbots]
+# Ban hosts which agent identifies spammer robots crawling the web
+# for email addresses. The mail outputs are buffered.
+enabled = true
+port     = http,https
+logpath  = %(apache_access_log)s
+bantime  = 48h
+maxretry = 1
+```
+
+ahora solo nos queda arrancar el servicio
+
+```bash
+systemctl enable fail2ban
+systemctl start fail2ban
 ```

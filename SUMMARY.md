@@ -3,7 +3,7 @@
 * [Visión general](README.md)
 * [Configuración de redes](configuracion-de-redes.md)
 * [HAProxy](haproxy.md)
-* [Fortificando las puertas](fortificando-las-puertas.md)
+* [Fortificando las puertas](bloquenado-tor.md)
 * [WAF](waf.md)
 * [NODOS](nodos.md)
 * [Monitorización](monitorizacion.md)

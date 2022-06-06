@@ -116,6 +116,8 @@ vim /etc/systemd/system/prometheus.service
 [Service]
   User=prometheus
   Group=prometheus
+  Restart=on-failure
+  RestartSec=5s
   Type=simple
   ExecStart=/usr/local/bin/prometheus \
   --config.file /etc/prometheus/prometheus.yml \

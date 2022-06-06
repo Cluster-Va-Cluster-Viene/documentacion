@@ -13,7 +13,7 @@ Ahora vamos a asignarle una ip interna a nuestra red privada entre las maquinas,
 Lo primero que tenemos que saber es que dispositivos de red disponemos para ello utilizamos el comando
 
 ```bash
-geekshub@nodo1:~$ ip link show
+nodo1:~$ ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
@@ -27,7 +27,7 @@ Donde vemos 3 redes la de loopback y las otras 2, la primera corresponde al adap
 Ahora vamos crear nuestro fichero de configuración&#x20;
 
 ```bash
-geekshub@nodo1:~$ sudo vim /etc/netplan/01-netcfg.yaml
+vim /etc/netplan/01-netcfg.yaml
 ```
 
 Con la siguiente configuración para tener una ip estática que nosotros decidamos, este proceso lo repetiremos en los HaProxys, los 3 nodos y en los 2 WAF
@@ -48,7 +48,7 @@ network:
 Para aplicar las configuraciones creadas ejecutamos
 
 ```bash
-geekshub@nodo1:~$ netplan apply
+netplan apply
 ```
 
 Las ips internas usadas en este caso son las siguiente

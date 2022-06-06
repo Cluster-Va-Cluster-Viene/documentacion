@@ -516,7 +516,7 @@ Agregamos a prometheus el exporter
       - targets: ['xxx.xxx.xxx.xxx:9117']
 ```
 
-### &#x20;Mysql Exporter
+### Mysql Exporter
 
 Vamos a monitorizar nuestro cluster de galera, para ello lo primera que hacemos en uno de los nodos crear un usuario
 
@@ -623,6 +623,385 @@ systemctl restart prometheus
 ```
 
 Ahora repetimos el proceso con el resto de los nodos de galera pero sin tener que crear el usuario porque ya se replico automaticamente.
+
+### Agrupando exporters
+
+Hasta ahora hemos ido agregando los exporter de manera independiente por tipo y servidor lo que lo hace poco mantenible a lo largo del tiempo
+
+```vim
+scrape_configs:
+  - job_name: 'node_exporter_prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'prometheus_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9100']
+  - job_name: 'node-1_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.3:9100']
+  - job_name: "node1-mysql"
+    scrape_interval: "15s"
+    static_configs:
+      - targets: ['192.168.10.3:9104']
+ - job_name: 'node1-apache'
+    static_configs:
+      - targets: ['192.168.10.3:9117']
+  - job_name: 'node-2_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.4:9100']
+  - job_name: "node2-mysql"
+    scrape_interval: "15s"
+    static_configs:
+      - targets: ['192.168.10.4:9104']
+ - job_name: 'node2-apache'
+    static_configs:
+      - targets: ['192.168.10.4:9117']
+  - job_name: 'node-3_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.5:9100']
+  - job_name: "node3-mysql"
+    scrape_interval: "15s"
+    static_configs:
+      - targets: ['192.168.10.5:9104']
+ - job_name: 'node3-apache'
+    static_configs:
+      - targets: ['192.168.10.5:9117']
+ - job_name: 'waf-1_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.6:9100']
+ - job_name: 'node-2_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.7:9100']
+ - job_name: 'HA1_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.1:9100']
+ - job_name: 'HA2_node_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.2:9100']
+ - job_name: 'HA1_haproxy_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.1:9101']
+ - job_name: 'HA2_haproxy_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.2:9101']
+ - job_name: 'node1_memcached_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.3:9150']
+ - job_name: 'node2_memcached_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.4:9150']
+ - job_name: 'node3_memcached_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.5:9150']
+```
+
+Lo que vamos a hacer ahora es agruparlos por tipos de exporters para que nos sea mas facil de mantener.
+
+```vim
+scrape_configs:
+  - job_name: 'prometheus_master'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - localhost:9090
+  - job_name: 'node'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 192.168.10.6:9100
+        - 192.168.10.7:9100
+        labels:
+          type: 'WaF'
+      - targets:
+        - 192.168.1.100:9100
+        labels:
+          type: 'monitorig'
+      - targets:
+        - 192.168.1.3:9100
+        - 192.168.1.4:9100
+        - 192.168.1.5:9100
+        labels:
+          type: 'Node'
+      - targets:
+        - 192.168.1.1:9100
+        - 192.168.1.2:9100
+        labels:
+          type: 'HAproxy'
+
+  - job_name: 'memcached'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 192.168.1.3:9150
+        labels:
+          node: 'node1'
+      - targets:
+        - 192.168.1.4:9150
+        labels:
+          node: 'node2'
+      - targets:
+        - 192.168.1.5:9150
+        labels:
+          node: 'node3'
+
+  - job_name: 'apache'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 192.168.1.3:9117
+        labels:
+          node: 'node1'
+      - targets:
+        - 192.168.1.4:9117
+        labels:
+          node: 'node2'
+      - targets:
+        - 192.168.1.5:9117
+        labels:
+          node: 'node3'
+      - targets:
+        - 192.168.1.6:9117
+        labels:
+          node: 'WaF1'
+      - targets:
+        - 192.168.1.7:9117
+        labels:
+          node: 'WaF2'
+
+  - job_name: 'haproxy'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 192.168.1.1:9101
+        labels:
+          node: 'HA1'
+      - targets:
+        - 192.168.1.2:9101
+        labels:
+          node: 'HA2'
+          
+  - job_name: 'mysql'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 192.168.1.3:9104
+        labels:
+          node: 'node1'
+      - targets:
+        - 192.168.1.4:9104
+        labels:
+          node: 'node2'
+      - targets:
+        - 192.168.1.5:9104
+        labels:
+          node: 'node3'
+```
+
+### Alertmanager
+
+Ahora que tenemos la monitorizacion montada tendremos que configurar las alertas para que nos sea util, para ello vamos a usar alertmanager
+
+```bash
+wget https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
+```
+
+Descomprimimos
+
+```bash
+tar xfz alertmanager-*.tar.gz
+```
+
+Entramos en la carpeta y copiamos los binarios
+
+```bash
+cd alertmanager-0.24.0.linux-amd64
+cp ./alertmanager /usr/local/bin/
+cp ./amtool /usr/local/bin/
+```
+
+Creamos la carpeta para la configuracion
+
+```bash
+mkdir /etc/alertmanager
+```
+
+Creamos el usuario
+
+```
+useradd --no-create-home --shell /usr/sbin/nologin alertmanager
+```
+
+Asignamos permisos
+
+```bash
+chown alertmanager:alertmanager /etc/alertmanager
+chown alertmanager:alertmanager /usr/local/bin/alertmanager
+chown alertmanager:alertmanager /usr/local/bin/amtool
+```
+
+Creamos la configuracion para recibir las alertas por email
+
+```bash
+vim /etc/alertmanager/alertmanager.yml
+```
+
+```vim
+  group_by: [Alertname]
+  receiver: email-me
+
+receivers:
+- name: email-me
+  email_configs:
+  - to: email@domain.com
+    from: email@domain.com
+    smarthost: server:port
+    auth_username: "email@domain.com"
+    auth_identity: "email@domain.com"
+    auth_password: "password"
+
+```
+
+Lo agregamos a systemd
+
+```bash
+vim /etc/systemd/system/alertmanager.service
+```
+
+```vim
+[Unit]
+Description=AlertManager Server Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=alertmanager
+Group=alertmanager
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/alertmanager --config.file /etc/alertmanager/alertmanager.yml 
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+Recargamos el demonio de systemd y ya lo tendremos disponible.
+
+```bash
+systemctl daemon-reload
+```
+
+Lo agregamos al arranque y lo arrancamos
+
+```bash
+systemctl enable alertmanager
+systemctl start alertmanager
+```
+
+Para crear las alertas vamos a creamos el siguiente fichero, con reglas para saber si los nodos estan levantados, se saturan de memoria o los discos estan llenos.
+
+```bash
+vim /etc/prometheus/alert_rules.yml
+```
+
+```vim
+groups:
+- name: ExporterDown
+  rules:
+  - alert: NodeDown
+    expr: up{job='node'} == 0
+    for: 1m
+    labels:
+      severity: Error
+    annotations:
+      summary: "Node Explorer instance {{ $labels.instance }}  down"
+      description: "NodeExporterDown"
+
+- name: ApacheDown
+  rules:
+  - alert: ApacheDown
+    expr: apache_up{} == 0
+    for: 1m
+    labels:
+      severity: Error
+    annotations:
+      summary: "Apache instance {{ $labels.instance }} down"
+      description: "ApacheExpoterDown"
+
+- name: HADown
+  rules:
+  - alert: HAProxyDown
+    expr: haproxy_up{} == 0
+    for: 1m
+    labels:
+      severity: Error
+    annotations:
+      summary: "HAProxy instance {{ $labels.instance }} down"
+      description: "HAProxyExpoterDown"
+
+
+- name: Memory
+  rules:
+  - alert: FullMemory
+    expr: (100 - ((node_memory_MemAvailable_bytes{job="node"} * 100) / node_memory_MemTotal_bytes{job="node"})) >= 85
+    for: 3m
+    labels:
+      severity: High
+    annotations:
+      summary: "85% Memory more than 3m instance {{ $labels.instance }}"
+      description: "FullMemory"
+
+- name: HD
+  rules:
+  - alert: FullHD
+    expr: (100 - ((node_filesystem_avail_bytes{job="node",mountpoint="/",fstype!="rootfs"} * 100) / node_filesystem_size_bytes{job="node",mountpoint="/",fstype!="rootfs"})) >= 85
+    for: 60m
+    labels:
+      severity: Critical
+    annotations:
+      summary: "85% HD Full more than 1h instance {{ $labels.instance }}"
+      description: "FullHD"
+  
+
+```
+
+Ahora vamos a agregar las reglas creadas a prometheus
+
+```bash
+vim /etc/prometheus/prometheus.yml
+```
+
+```vim
+rule_files:
+  - "alert_rules.yml"
+
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - localhost:9093
+```
+
+Reiniciamos prometheus
+
+```
+systemctl restart prometheus
+```
 
 ### Grafana
 

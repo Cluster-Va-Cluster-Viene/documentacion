@@ -1005,14 +1005,27 @@ systemctl restart prometheus
 
 ### Grafana
 
+Vamos a instalar ahora Grafana para poder ver de manera sencilla los datos que tiene prometheus, para ello vamos a agregar los repositorios oficiales para tener siempre la ultima version
+
 ```bash
-apt-get install -y adduser libfontconfig1
-wget https://dl.grafana.com/oss/release/grafana_6.7.3_amd64.deb
-dpkg -i grafana_6.7.3_amd64.deb
+apt install -y apt-transport-https
+apt install -y software-properties-common wget
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
 ```
+
+Acutalizamos los repositorios e instalamos
+
+```bash
+apt update
+apt install grafana
+```
+
+Arrancamos el servico y cargamos en el arranque
 
 ```bash
 systemctl daemon-reload
-systemctl enable grafana-server
 systemctl start grafana-server
+systemctl enable grafana-server
+systemctl status grafana-server
 ```

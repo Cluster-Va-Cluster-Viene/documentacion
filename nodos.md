@@ -1,6 +1,6 @@
-# NODOS
+# Nodos
 
-Vamos con la configuración de los nodos que contendran Apache2 + PHP + MySQL Galera Clusters + GlusterFS
+Vamos con la configuración de los nodos que contendrán Apache2 + PHP + MySQL Galera Clusters + GlusterFS + memcached
 
 ### GlusterFs
 
@@ -416,4 +416,69 @@ Si hacemos algún cambio a las iptables nos tenemos que acordar de guardarlas
 iptables-save > /etc/iptables/rules.v4
 
 iptables-save > /etc/iptables/rules.v6
+```
+
+### Memcached
+
+Ahora que ya solo nos falta poder tener las sesiones compartidas entre los diferentes nodos para ello vamos a usar memcached
+
+```bash
+sudo apt install php-memcached memcached
+```
+
+Si vamos a la configuración vemos que la ip de escucha es localhost pero para poderlo tener en modo cluster tenemos que decirle que escuche en nuestra red interna.
+
+```bash
+vim /etc/memcached.conf
+```
+
+```vim
+# Specify which IP address to listen on. The default is to listen on all IP addresses
+# This parameter is one of the only security measures that memcached has, so make sure
+# it's listening on a firewalled interface.
+-l 127.0.0.1
+```
+
+cambiándola de la siguiente manera en cada nodo
+
+```vim
+-l 192.168.10.X
+```
+
+Una vez que tenemos configurado reiniciamos los nodos e iremos a configurar php
+
+```bash
+systemctl restart memcached
+```
+
+Abrimos la configuración de php y buscamos la sección de sesiones
+
+```bash
+vim /etc/php/8.1/apache2/php.ini
+```
+
+Y la dejamos de la siguiente manera
+
+```vim
+session.save_handler = memcache
+session.save_path = 'tcp://192.168.10.3:11211,tcp://192.168.10.4:11211,tcp://192.168.10.5:11211'
+```
+
+Ahora vamos a configurar el modulo de memcached
+
+```bash
+vim /etc/php/8.1/mods-available/memcached.ini
+```
+
+```vim
+memcache.allow_failover=1
+memcache.session_redundancy=4
+```
+
+La directiva memcache.session\_redundancy debe ser igual a la cantidad de servidores Memcached + 1 para que la información de la sesión se replique en todos los servidores. Esto se debe a un error en PHP.
+
+Estas directivas permiten la conmutación por error y la redundancia de la sesión, por lo que PHP escribe la información de la sesión en todos los servidores especificados en session.save\_path; similar a una configuración RAID-1.
+
+```bash
+systemctl restart apache2
 ```

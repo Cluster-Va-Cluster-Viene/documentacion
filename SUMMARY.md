@@ -4,7 +4,7 @@
 * [Configuración de redes](configuracion-de-redes.md)
 * [HAProxy](haproxy.md)
 * [WAF](waf.md)
-* [NODOS](nodos.md)
+* [Nodos](nodos.md)
 * [Monitorización](monitorizacion.md)
 
 ## Seguridad común

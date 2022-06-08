@@ -557,7 +557,7 @@ cp ./mysqld_exporter /usr/local/bin/
 ```
 
 {% hint style="warning" %}
-Los datos de conexion los ponemos dentro del systemd dado que usando el parametro _config.my-cnf_ nos falla la conexion&#x20;
+Los datos de conexión los ponemos dentro del systemd dado que usando el parametro _config.my-cnf_ nos falla la conexión&#x20;
 {% endhint %}
 
 ```bash
@@ -627,7 +627,7 @@ Y añadimos lo siguiente en la zona de `scrape_configs`
 systemctl restart prometheus
 ```
 
-Ahora repetimos el proceso con el resto de los nodos de galera pero sin tener que crear el usuario porque ya se replico automaticamente.
+Ahora repetimos el proceso con el resto de los nodos de galera pero sin tener que crear el usuario porque ya se replico automáticamente.
 
 ### Agrupando exporters
 
@@ -1106,7 +1106,7 @@ cert_key =/etc/grafana/privkey.pem
 
 ahora ingresamos en nuestro grafana y ponemos el usuario y contraseña por defecto que es admin:admin nada mas introducirlo nos pedira cambiarlo por la que nosotros queramos.
 
-![Grafana login](<.gitbook/assets/imagen (1).png>)
+![Grafana login](<.gitbook/assets/imagen (1) (1).png>)
 
 Una vez dentro vamos a configurar algunos dashboard para ver los datos de prometheus,[ hay muchos creados](https://grafana.com/grafana/dashboards/) que son los que vamos a usar o podriamos crear los nuestros propios.
 
@@ -1114,12 +1114,22 @@ Antes de empezar a graficar cosas necesitamos decirle a grafana de donde va a sa
 
 ![Data Sources](.gitbook/assets/imagen.png)
 
+Rellenamos nuestra configuracion hay que acordarse de poner la Basic auth para que podamos recoger los datos.
 
+![Configuracion grafana prometheus](<.gitbook/assets/imagen (5).png>)
 
-Buscamos el que nos interesa y nos copiamos su identificador
+Una vez que tenemos el DataSource configurado buscamos el dashboard que nos interesa y nos copiamos su identificador
 
 ![Node exporter grafana](<.gitbook/assets/imagen (2).png>)
 
 Ahora nos dirigimos a Dashbard -> import y pegamos el id del dashboard
 
 ![Importar dashboard grafana](<.gitbook/assets/imagen (4).png>)
+
+Lo cargamos y le decimos que Data Source usuara.
+
+![Configuracion dashboard](<.gitbook/assets/imagen (1).png>)
+
+![Dashboard](<.gitbook/assets/imagen (6).png>)
+
+Ahora ya solo nos queda agregar los Dashboard que nosotros queramos.

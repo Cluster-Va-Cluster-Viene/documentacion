@@ -331,9 +331,11 @@ iptables-save > /etc/iptables/rules.v4
 iptables-save > /etc/iptables/rules.v6
 ```
 
-### node exporter
+### Node exporter
 
-Descargamos
+Este exporter nos servira para recopilar la información de uso general de los sistemas como su CPU, memoria, procesos...&#x20;
+
+Para ello descargamos
 
 ```bash
 wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
@@ -429,6 +431,116 @@ Ahora repetimos el proceso con el resto de los nodos y servidores de nuestro HA 
 
 ![Prometheus basico](imgs/prometheus.png)
 
+### HAProxy Exporter
+
+Este exporter nos servira para recopilar la información de nuestros HAProxys y saber sus conexiónes, que va a cada nodo...
+
+Para ello descargamos
+
+```bash
+wget https://github.com/prometheus/haproxy_exporter/releases/download/v0.13.0/haproxy_exporter-0.13.0.linux-amd64.tar.gz
+```
+
+descomprimimos
+
+```bash
+tar xvf haproxy_exporter-*.tar.gz
+```
+
+Creamos usuarios
+
+```bash
+useradd --no-create-home --shell /bin/false haproxy_exporter
+```
+
+Entramos a la carpeta de haproxy\_exporter y copiamos el binario
+
+```bash
+cd haproxy_exporter-0.13.0.linux-amd64
+cp ./haproxy_exporter /usr/local/bin
+```
+
+Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
+
+```bash
+vim /etc/systemd/system/haproxy_exporter.service
+```
+
+```bash
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=haproxy_exporter
+Group=haproxy_exporter
+Type=simple
+ExecStart=/usr/local/bin/haproxy_exporter --haproxy.scrape-uri=http://127.0.0.1:5000/haproxy?stats\;csv
+
+[Install]
+WantedBy=multi-user.target
+```
+
+recargamos systemd
+
+```bash
+systemctl daemon-reload
+```
+
+Arrancamos el haproxy\_exporter
+
+```bash
+systemctl start haproxy_exporter
+```
+
+Comprobamos que funciona
+
+```bash
+systemctl status haproxy_exporter
+```
+
+Lo activamos para arranque de maquina
+
+```bash
+systemctl enable haproxy_exporter
+```
+
+Configuramos el HAProxy para poder recopilar la Información con nuestro haproxy\_exporter para ello añadimos el siguiente bloque
+
+```bash
+vim /etc/haproxy/haproxy.cfg
+```
+
+```vim
+listen stats
+        bind 127.0.0.1:5000
+        stats enable
+        stats uri /haproxy?stats
+
+```
+
+Vamos a comunicar el haproxy\_exporter con Prometheus para ello vamos a editar la configuración de Prometheus
+
+```bash
+vim /etc/prometheus/prometheus.yml
+```
+
+Y añadimos lo siguiente en la zona de scrape\_configs
+
+```bash
+  - job_name: 'ha1_haproxy_exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.1:9101']
+```
+
+&#x20;Reiniciamos prometheus
+
+```bash
+systemctl restart prometheus
+```
+
 ### Apache exporter
 
 Para monitorizar apache tenemos que tener el modulo de `mod_status` activado y la locacilizacion `/server-status` activada en este caso ubuntu lo trate configurado por defecto, por lo que no tendriamos que tocar nada.
@@ -495,7 +607,7 @@ ExecStart=/usr/sbin/apache_exporter $OPTIONS
 WantedBy=multi-user.target
 ```
 
-Generamos la configuracion, donde escuchamos y donde publicamos la informacion para prometheus
+Generamos la configuración, donde escuchamos y donde publicamos la Información para prometheus
 
 ```bash
 vim /etc/apache_exporter

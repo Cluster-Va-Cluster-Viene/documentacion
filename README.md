@@ -17,4 +17,10 @@ Se va a construir un cluster para mejorar la disponibilidad de los sistemas, opt
 
 ![Estructura servidores](imgs/estructura\_servidores.png)
 
-![Este obra está bajo una licencia de Creative Commons Reconocimiento-CompartirIgual 4.0 Internacional](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
+## Comparte <a href="#feedback" id="feedback"></a>
+
+La obre se distribuye bajo Licencia Creative Commos, por lo que eres libre de compartirla como quieras y realizar modificaciones u obras derivadas de ella.
+
+![](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
+
+Cluster va Cluster viene por [Rafael Otal Simal](https://legacy.gitbook.com/book/goldrak/seguridad-web-101/details) se distribuye bajo una [Licencia Creative Commons Atribución-CompartirIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/)

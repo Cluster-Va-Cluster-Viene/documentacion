@@ -16,3 +16,5 @@ Se va a construir un cluster para mejorar la disponibilidad de los sistemas, opt
 * Una vez analizada la petición es devuelta al balanceador de carga, si la petición es buena la envía a los nodos GLAMP, si la petición es mala se informa al balanceador para que a la décima petición se corte la conexión contra el cluster.
 
 ![Estructura servidores](imgs/estructura\_servidores.png)
+
+![Este obra está bajo una licencia de Creative Commons Reconocimiento-CompartirIgual 4.0 Internacional](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)

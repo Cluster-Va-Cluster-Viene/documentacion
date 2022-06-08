@@ -194,7 +194,12 @@ Si accedemos por la ip veremos la web por defecto de nginx si no queremos que es
 rm /etc/nginx/sites-enabled/default
 ```
 
-Para activar Let's Encrypt tenemos que instalar nuestro amigo certbot
+Ahora vamos a ponerle certificado gracias a Let’s Encrypt para ello instalamos el certbot, agregamos el repositorio.
+
+```bash
+add-apt-repository ppa:certbot/certbot
+apt update
+```
 
 ```bash
 apt install certbot python3-certbot-nginx
@@ -369,7 +374,7 @@ After=network-online.target
 User=node_exporter
 Group=node_exporter
 Type=simple
-ExecStart=/usr/local/bin/node_exporter
+ExecStart=/usr/local/bin/node_exporter --collector.systemd --collector.processes
 
 [Install]
 WantedBy=multi-user.target
@@ -1029,3 +1034,92 @@ systemctl start grafana-server
 systemctl enable grafana-server
 systemctl status grafana-server
 ```
+
+Ahora vamos aprovechar el certificado que hemos solicitado para el dominio de prometheus, dado que vamos a usar el mismo nombre de dominio pero por el puerto 3000 que es el por defecto de grafana.
+
+Vamos a crear un pequeño script para el deploy de los certificados para grafana.
+
+```bash
+mkdir /opt/cerbot
+vim /opt/certbot/deployhook.sh
+```
+
+```vim
+cp /etc/letsencrypt/live/tu-dominio.com/cert.pem /etc/grafana -f
+cp /etc/letsencrypt/live/tu-dominio.com/privkey.pem /etc/grafana -f
+chown grafana:grafana /etc/grafana/*.pem
+chmod 644 /etc/grafana/*.pem
+systemctl restart grafana-server
+```
+
+creamos ahora en el crontab la renovacion diciendole que deploy-hook tiene que usar
+
+```vim
+47 10 * * * /usr/bin/certbot renew --deploy-hook /opt/certbot/deployhook.sh
+```
+
+Ahora solo nos queda configurar grafana para que lo use.
+
+```bash
+vim /etc/grafana/grafana.ini
+```
+
+```vim
+#################################### Server ####################################
+[server]
+# Protocol (http, https, h2, socket)
+protocol = https
+
+# The ip address to bind to, empty will bind to all interfaces
+;http_addr =
+
+# The http port  to use
+http_port = 3000
+
+# The public facing domain name used to access grafana from a browser
+domain = tu-dominio.com
+
+# Redirect to correct domain if host header does not match domain
+# Prevents DNS rebinding attacks
+enforce_domain = true
+
+# The full public facing url you use in browser, used for redirects and emails
+# If you use reverse proxy and sub path specify full url (with sub path)
+
+# Serve Grafana from subpath specified in `root_url` setting. By default it is set to `false` for compatibility reasons.
+;serve_from_sub_path = false
+
+# Log web requests
+;router_logging = false
+
+# the path relative working path
+;static_root_path = public
+
+# enable gzip
+;enable_gzip = false
+
+# https certs & key file
+cert_file =/etc/grafana/cert.pem
+cert_key =/etc/grafana/privkey.pem
+
+```
+
+ahora ingresamos en nuestro grafana y ponemos el usuario y contraseña por defecto que es admin:admin nada mas introducirlo nos pedira cambiarlo por la que nosotros queramos.
+
+![Grafana login](<.gitbook/assets/imagen (1).png>)
+
+Una vez dentro vamos a configurar algunos dashboard para ver los datos de prometheus,[ hay muchos creados](https://grafana.com/grafana/dashboards/) que son los que vamos a usar o podriamos crear los nuestros propios.
+
+Antes de empezar a graficar cosas necesitamos decirle a grafana de donde va a sacar los datos para ello vamos Configuration -> Data Sources y agregamos la fuente que queramos en este caso prometheus
+
+![Data Sources](.gitbook/assets/imagen.png)
+
+
+
+Buscamos el que nos interesa y nos copiamos su identificador
+
+![Node exporter grafana](<.gitbook/assets/imagen (2).png>)
+
+Ahora nos dirigimos a Dashbard -> import y pegamos el id del dashboard
+
+![Importar dashboard grafana](<.gitbook/assets/imagen (4).png>)

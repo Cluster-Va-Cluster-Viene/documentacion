@@ -480,7 +480,7 @@ vim /etc/systemd/system/haproxy_exporter.service
 
 ```bash
 [Unit]
-Description=Node Exporter
+Description=Haproxy Exporter
 Wants=network-online.target
 After=network-online.target
 
@@ -758,6 +758,109 @@ systemctl restart prometheus
 ```
 
 Ahora repetimos el proceso con el resto de los nodos de galera pero sin tener que crear el usuario porque ya se replico automáticamente.
+
+### Memcached Exporter
+
+Este exporter nos servira para recopilar la información de nuestros memcached y ver los estados de las sesiones.
+
+Para ello descargamos
+
+```bash
+wget https://github.com/prometheus/memcached_exporter/releases/download/v0.9.0/memcached_exporter-0.9.0.linux-amd64.tar.gz
+```
+
+descomprimimos
+
+```bash
+tar xvf memcached_exporter-*.tar.gz
+```
+
+Creamos usuarios
+
+```bash
+useradd --no-create-home --shell /bin/false memcached_exporter
+```
+
+Entramos a la carpeta de memcached\_exporter y copiamos el binario
+
+```bash
+cd memcached_exporter-0.9.0.linux-amd64
+cp ./memcached_exporter /usr/local/bin
+```
+
+Asignamos el usuario
+
+```bash
+chown memcached_exporter:memcached_exporter /usr/local/bin/memcached_exporter
+```
+
+Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
+
+```bash
+vim /etc/systemd/system/memcached_exporter.service
+```
+
+```bash
+[Unit]
+Description=memcached  Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=memcached_exporter
+Group=memcached_exporter
+Type=simple
+ExecStart=/usr/local/bin/memcached_exporter --memcached.address 192.168.10.X:11211 -web.listen-address 192.168.10.X:9150
+
+
+[Install]
+WantedBy=multi-user.target
+```
+
+recargamos systemd
+
+```bash
+systemctl daemon-reload
+```
+
+Arrancamos el memcached\_exporter
+
+```bash
+systemctl start memcached_exporter
+```
+
+Comprobamos que funciona
+
+```bash
+systemctl status memcached_exporter
+```
+
+Lo activamos para arranque de maquina
+
+```bash
+systemctl enable memcached_exporter
+```
+
+Vamos a comunicar el memcached\_exporter con Prometheus para ello vamos a editar la configuración de Prometheus
+
+```bash
+vim /etc/prometheus/prometheus.yml
+```
+
+Y añadimos lo siguiente en la zona de scrape\_configs
+
+```bash
+  - job_name: 'node1-memcache'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.10.1:9150']
+```
+
+&#x20;Reiniciamos prometheus
+
+```bash
+systemctl restart prometheus
+```
 
 ### Agrupando exporters
 

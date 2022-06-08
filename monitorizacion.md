@@ -360,6 +360,12 @@ cd node_exporter-1.3.1.linux-amd64
 cp ./node_exporter /usr/local/bin
 ```
 
+Asignamos el usuario
+
+```bash
+chown node_exporter:node_exporter /usr/local/bin/node_exporter
+```
+
 Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
 
 ```bash
@@ -458,6 +464,12 @@ Entramos a la carpeta de haproxy\_exporter y copiamos el binario
 ```bash
 cd haproxy_exporter-0.13.0.linux-amd64
 cp ./haproxy_exporter /usr/local/bin
+```
+
+Asignamos el usuario
+
+```bash
+chown haproxy_exporter:haproxy_exporter /usr/local/bin/haproxy_exporter
 ```
 
 Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
@@ -666,6 +678,12 @@ Entramos a la carpeta de `mysql_exporter` y copiamos el binario
 ```bash
 cd mysqld_exporter-0.14.0.linux-amd64
 cp ./mysqld_exporter /usr/local/bin/
+```
+
+Asignamos el usuario
+
+```bash
+chown mysql_exporter:mysql_exporter /usr/local/bin/mysqld_exporter
 ```
 
 {% hint style="warning" %}

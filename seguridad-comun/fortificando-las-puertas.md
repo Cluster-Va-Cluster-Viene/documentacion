@@ -184,7 +184,7 @@ mta = sendmail
 
 ```
 
-Por defecto fail2ban tiene un monto de jaulas que podemos activar, por defecto en debian viene activada la del ssh por lo que no es necesario volver a activar, pero si queremos activar cualquier otra solo tenemos que añadir en su bloque de configuración enable=true
+Por defecto fail2ban tiene un montón de jaulas que podemos activar, por defecto en debian viene activada la del ssh por lo que no es necesario volver a activar, pero si queremos activar cualquier otra solo tenemos que añadir en su bloque de configuración enable=true
 
 ```vim
 [apache-badbots]

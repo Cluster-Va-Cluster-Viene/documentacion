@@ -15,7 +15,7 @@ Se va a construir un cluster para mejorar la disponibilidad de los sistemas, opt
 * Se remiten al WaF que revisar la seguridad de la petición y mitigar los intentos de hackeos como SQLi, XSS…
 * Una vez analizada la petición es devuelta al balanceador de carga, si la petición es buena la envía a los nodos GLAMP, si la petición es mala se informa al balanceador para que a la décima petición se corte la conexión contra el cluster.
 
-![Estructura servidores](<.gitbook/assets/estructura\_servidores.png>)
+![Estructura servidores](.gitbook/assets/estructura\_servidores.png)
 
 ## Comparte
 
@@ -24,3 +24,7 @@ La obre se distribuye bajo Licencia Creative Commos, por lo que eres libre de co
 ![creativecommons by-sa](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
 
 Cluster va Cluster viene por [Rafael Otal Simal](https://legacy.gitbook.com/book/goldrak/seguridad-web-101/details) se distribuye bajo una [Licencia Creative Commons Atribución-CompartirIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/)
+
+## Agradecimientos
+
+[joseaguardia](https://github.com/joseaguardia) Bug en el script de Tor \[[#1](https://github.com/Cluster-Va-Cluster-Viene/documentacion/issues/1)]

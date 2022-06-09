@@ -1,6 +1,6 @@
 # Fortificando las puertas
 
-### Bloquenado TOR
+## Bloquenado TOR
 
 Si queremos bloquear los nodos TOR para evitar que se conecten desde dicha red que en muchos casos se suele usar para atacar dado el grado de anonimato que proporciona, podemos usar el siguiente script:
 
@@ -47,7 +47,7 @@ apt install iptables-persistent
 
 Las configuraciones se guardan en estos dos ficheros
 
-```
+```bash
 /etc/iptables/rules.v4
 
 /etc/iptables/rules.v6
@@ -61,7 +61,7 @@ iptables-save > /etc/iptables/rules.v4
 iptables-save > /etc/iptables/rules.v6
 ```
 
-### PortSentry
+## PortSentry
 
 Una cosa que queremos es bloquear los posibles escaneos de red y de paso dar información no veraz para confundir a nuestros atacantes, para ello disponemos del paquete PortSentry.
 
@@ -75,7 +75,7 @@ Lo primero que tenemos que hacer es configurar nuestra ip o rango de trabajo en 
 vim  /etc/portsentry/portsentry.ignore.static
 ```
 
-```
+```vim
 # Example:
 
 192.168.2.0/24
@@ -126,7 +126,7 @@ Por defecto PortSentry mete también los escaneos dentro del /etc/hosts.deny, gr
 KILL_HOSTS_DENY="ALL: $TARGET$ : DENY"
 ```
 
-### Fail2ban
+## Fail2ban
 
 Otra cosa que no queremos es que la gente se ponga a dar martillazos contra nuestras puertas para intentar entrar para ello disponemos de la herramienta Fail2Ban.
 

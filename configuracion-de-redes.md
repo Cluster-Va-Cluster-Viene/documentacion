@@ -4,9 +4,9 @@ Para poder montar nuestra estructura tenemos que tener una red interna para comu
 
 Para ello vamos a la configuración de las maquinas virtuales y en el apartado red configuramos un adaptador en modo puente para que nos use la red del ordenador directamente y la otra la ponemos en modo red interna.
 
-![Interfaz de red 1](<.gitbook/assets/imagen (3).png>)
+![Interfaz de red 1](<.gitbook/assets/vbox\_external\_network.png>)
 
-![Interfaz de red 2](<.gitbook/assets/imagen (1) (1) (1).png>)
+![Interfaz de red 2](<.gitbook/assets/vbox\_internal\_network.png>)
 
 Ahora vamos a asignarle una ip interna a nuestra red privada entre las maquinas, en ubuntu desde 18.04 LTS, la configuración de red se hace con [netplan](https://netplan.io/).
 

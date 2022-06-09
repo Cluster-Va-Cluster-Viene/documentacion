@@ -2,13 +2,13 @@
 
 Vamos con la configuración de los nodos que contendrán Apache2 + PHP + MySQL Galera Clusters + GlusterFS + memcached
 
-### GlusterFs
+## GlusterFs
 
 El primer problema que nos encontramos cuando queremos utilizar un sistema de nodos es que cada servidor tiene sus discos duros y por lo tanto tenemos que buscar alguna manera de sincronizar los ficheros, para esto vamos a usar [GlusterFS](https://www.gluster.org/)
 
 Tenemos varios métodos de sincronización de ficheros pero nosotros vamos a utilizar el tipo replica
 
-![GlusterFS Replica](imgs/GlusterFs\_Replicacion.png)
+![GlusterFS Replica](<.gitbook/assets/GlusterFs\_Replicacion.png>)
 
 Lo primero que vamos a realizar es añadir al fichero **hosts** las direcciones de la red interna de los diferentes nodos para facilitarnos la vida en la comunicación con gusterfs
 
@@ -329,7 +329,7 @@ Una vez terminado podemos comprobar el tamaño del cluster
 mysql -u root -p -e "SHOW STATUS LIKE 'wsrep_cluster_size'"
 ```
 
-```
+```sql
 +--------------------+-------+
 | Variable_name      | Value |
 +--------------------+-------+
@@ -349,7 +349,7 @@ Repetimos el comando de antes para ver el aumento del cluster
 mysql -u root -p -e "SHOW STATUS LIKE 'wsrep_cluster_size'"
 ```
 
-```
+```sql
 +--------------------+-------+
 | Variable_name      | Value |
 +--------------------+-------+
@@ -375,7 +375,7 @@ Ahora vamos a otro nodo para ver que los datos son accesibles y ejecutamos
 mysql -u root -p -e 'SELECT * FROM clusterVaClusterViene.equipment;'
 ```
 
-```
+```sql
 +----+-------+-------+-------+
 | id | type  | quant | color |
 +----+-------+-------+-------+
@@ -404,7 +404,7 @@ apt install iptables-persistent
 
 Las configuraciones se guardan en estos dos ficheros
 
-```
+```bash
 /etc/iptables/rules.v4
 
 /etc/iptables/rules.v6

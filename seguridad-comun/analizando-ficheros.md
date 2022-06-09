@@ -2,7 +2,7 @@
 
 Vamos a configurar diferentes medidas de seguridad que nos permitan vigilar los ficheros del sistema para luchar contra el malware, rootkits y diferentes bichos.
 
-### CalmAV
+## CalmAV
 
 ClamAV es un excelente antivirus gratis Open Source que luego nos servira para darle mas potencia a maldet
 
@@ -30,7 +30,7 @@ Este demonio del sistema usa la librería del ClamAV para escanear ficheros. Es 
 
 Ya podemos lanzar el comando del sistema clamonacc, pero antes conviene configurarlo, para ello añadimos las siguientes lineas, OnAccessIncludePath podemos agregar tantas como sean necesarias.
 
-```
+```vim
 OnAccessIncludePath /home/geekshub/
 OnAccessExcludeUname clamav
 OnAccessExcludeUname root
@@ -83,7 +83,7 @@ wget https://secure.eicar.org/eicar.com
 
 Si todo va bien tendremos el fichero en la carpeta de cuarentena.&#x20;
 
-### Maldet
+## Maldet
 
 Maldet es un antimalware que usamos desde la terminal de Linux y que utiliza un potente escáner y una serie de patrones o firmas para detectar malware en el sistema que puede utilizar el motor de clamav para ser mas rápido y potente.
 
@@ -111,8 +111,6 @@ Ahora vamos a configurarlo
 ```bash
 vim  /usr/local/maldetect/conf.maldet
 ```
-
-
 
 * **email\_alert:** Nos permite poner un 0 o un 1, si ponemos 1 activaremos los avisos de Maldet mediante correo electrónico.
 * **email\_addr:** Nos permite introducir una dirección de correo electrónico a donde se enviaran los avisos de detección.

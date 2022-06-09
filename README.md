@@ -15,12 +15,12 @@ Se va a construir un cluster para mejorar la disponibilidad de los sistemas, opt
 * Se remiten al WaF que revisar la seguridad de la petición y mitigar los intentos de hackeos como SQLi, XSS…
 * Una vez analizada la petición es devuelta al balanceador de carga, si la petición es buena la envía a los nodos GLAMP, si la petición es mala se informa al balanceador para que a la décima petición se corte la conexión contra el cluster.
 
-![Estructura servidores](imgs/estructura\_servidores.png)
+![Estructura servidores](<.gitbook/assets/estructura\_servidores.png>)
 
-## Comparte <a href="#feedback" id="feedback"></a>
+## Comparte
 
 La obre se distribuye bajo Licencia Creative Commos, por lo que eres libre de compartirla como quieras y realizar modificaciones u obras derivadas de ella.
 
-![](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
+![creativecommons by-sa](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
 
 Cluster va Cluster viene por [Rafael Otal Simal](https://legacy.gitbook.com/book/goldrak/seguridad-web-101/details) se distribuye bajo una [Licencia Creative Commons Atribución-CompartirIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/)

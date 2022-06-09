@@ -129,7 +129,7 @@ Quedando de la siguiente manera, poniendo en IP\_WAF la ip interna de dicho serv
 </VirtualHost>
 ```
 
-#### Eliminar el banner de la versión del servidor
+## Eliminar el banner de la versión del servidor
 
 Apache por defecto nos muestra en las peticiones su versión y el sistema operativo en el que esta corriendo.
 
@@ -147,7 +147,7 @@ ServerTokens Prod
 ServerSignature Off
 ```
 
-#### Healthchecks para HAProxy
+## Healthchecks para HAProxy
 
 Ahora tenemos que agregar una regla personalizada para que el HAProxy sepa que nuestros WAF están vivos, para ello creamos el fichero
 
@@ -181,7 +181,7 @@ apt install iptables-persistent
 
 Las configuraciones se guardan en estos dos ficheros
 
-```
+```bash
 /etc/iptables/rules.v4
 
 /etc/iptables/rules.v6

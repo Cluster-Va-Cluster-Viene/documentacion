@@ -87,7 +87,7 @@ La siguiente sección se encarga de escuchar las peticiones que vienen del exter
 
 Con la configuración actual de SSL conseguimos un A en SSLLabs.
 
-![SSL Labs](<.gitbook/assets/ssl\_test.png>)
+![SSL Labs](.gitbook/assets/ssl\_test.png)
 
 Configuramos las peticiones a la granja de WAF, se manda una petición a waf\_health\_check a los diferentes nodos para ver si esta disponible esperando un 403 que luego configuraremos en el WAF y a continuación se envia al WAF.
 
@@ -139,7 +139,7 @@ backend bk_nodes
 
 Con esto tendríamos una configuración minima para poder usar nuestro tipo de infraestructura, podríamos añadir mas cosas al HAProxy como mitigación de DDoS, evitar que los ficheros estaticos como las imagenes tengan que pasar por el waf para liberarlos de carga...
 
-## Keepalived
+### Keepalived
 
 Instalamos keepalived y psmisc
 
@@ -149,7 +149,7 @@ apt install keepalived psmisc
 
 Las configraciones entre los dos nodos son muy parecidas solo teniendo que cambiar la prioridad y el estado.
 
-### Nodo MASTER
+#### Nodo MASTER
 
 Creamos la configuración en el siguiente fichero
 
@@ -210,7 +210,7 @@ vrrp_instance VI_1 {
 }
 ```
 
-### Nodo Backup
+#### Nodo Backup
 
 Creamos la configuración en el siguiente fichero
 
@@ -233,7 +233,7 @@ vrrp_script chk_haproxy {
 #Ip flotante dentro del VRack
 vrrp_instance VI_2 {
         interface ens4 # Interfaz que monitorizamos
-        state MASTER # MASTER en haproxy1, BACKUP en haproxy2
+        state BACKUP # MASTER en haproxy1, BACKUP en haproxy2
         virtual_router_id 24
         priority 100 # 101 en haproxy1, 100 en haproxy2
 
@@ -253,7 +253,7 @@ vrrp_instance VI_2 {
 #Ip flotante exterma
 vrrp_instance VI_1 {
         interface ens3 # Interfaz que monitorizamos
-        state MASTER # MASTER en haproxy1, BACKUP en haproxy2
+        state BACKUP # MASTER en haproxy1, BACKUP en haproxy2
         virtual_router_id 23
         priority 101 # 101 en haproxy1, 100 en haproxy2
 

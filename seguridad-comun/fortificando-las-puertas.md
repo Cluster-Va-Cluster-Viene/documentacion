@@ -33,34 +33,6 @@ luego solo tenemos que poner un crontab para que se actualice periódicamente:
 0 */2 * * * /opt/scripts/./tor-iptables.sh
 ```
 
-Para que la gente no se pueda conectar por la ip publica al puerto 82 y saltarse el WAF lo cerramos por iptables.
-
-```bash
-iptables -A INPUT -i {interface} -p tcp --destination-port 82 -j DROP
-```
-
-Como las iptables si se reinicia el equipo se pierden y no queremos estar agregandolas manualmente vamos a instalar el paquete iptables-persistent
-
-```bash
-apt install iptables-persistent
-```
-
-Las configuraciones se guardan en estos dos ficheros
-
-```bash
-/etc/iptables/rules.v4
-
-/etc/iptables/rules.v6
-```
-
-Si hacemos algun cambio a las iptables nos tenemos que acordar de guardarlas
-
-```bash
-iptables-save > /etc/iptables/rules.v4
-
-iptables-save > /etc/iptables/rules.v6
-```
-
 ## PortSentry
 
 Una cosa que queremos es bloquear los posibles escaneos de red y de paso dar información no veraz para confundir a nuestros atacantes, para ello disponemos del paquete PortSentry.
@@ -181,7 +153,6 @@ sender = root@<fq-hostname>
 # mailing. Change mta configuration parameter to mail if you want to
 # revert to conventional 'mail'.
 mta = sendmail
-
 ```
 
 Por defecto fail2ban tiene un montón de jaulas que podemos activar, por defecto en debian viene activada la del ssh por lo que no es necesario volver a activar, pero si queremos activar cualquier otra solo tenemos que añadir en su bloque de configuración enable=true

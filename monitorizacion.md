@@ -7,7 +7,7 @@ Para la monitorización de nuestros sistemas vamos a usar el tandem [prometheus]
 Nos servira para recuperar datos de unos sensores que pondremos en nuestros sistemas y crear alertas por si algo sucede, para empezar vamos a descargamos prometheus
 
 ```bash
-wget https://github.com/prometheus/prometheus/releases/download/v2.36.0/prometheus-2.36.0.linux-amd64.tar.gzr.gz
+wget https://github.com/prometheus/prometheus/releases/download/v2.36.1/prometheus-2.36.1.darwin-amd64.tar.gz
 ```
 
 Descomprimimos
@@ -186,7 +186,7 @@ systemctl start nginx
 systemctl status nginx
 ```
 
-Ahora ya podemos acceder a <http://tu-dominio.com>
+Ahora ya podemos acceder a [http://tu-dominio.com](http://tu-dominio.com)
 
 Si accedemos por la ip veremos la web por defecto de nginx si no queremos que esto suceda podemos eliminar el siguiente fichero
 
@@ -333,7 +333,7 @@ iptables-save > /etc/iptables/rules.v6
 
 ## Node exporter
 
-Este exporter nos servira para recopilar la información de uso general de los sistemas como su CPU, memoria, procesos...&#x20;
+Este exporter nos servira para recopilar la información de uso general de los sistemas como su CPU, memoria, procesos...
 
 Para ello descargamos
 
@@ -429,7 +429,7 @@ systemctl restart prometheus
 
 Ahora repetimos el proceso con el resto de los nodos y servidores de nuestro HA y ya podemos consultar la información de los diferentes nodos
 
-![Prometheus basico](<.gitbook/assets/prometheus.png>)
+![Prometheus basico](.gitbook/assets/prometheus.png)
 
 ## HAProxy Exporter
 
@@ -517,7 +517,6 @@ listen stats
         bind 127.0.0.1:5000
         stats enable
         stats uri /haproxy?stats
-
 ```
 
 Vamos a comunicar el haproxy\_exporter con Prometheus para ello vamos a editar la configuración de Prometheus
@@ -669,7 +668,7 @@ cp ./mysqld_exporter /usr/local/bin/
 ```
 
 {% hint style="warning" %}
-Los datos de conexión los ponemos dentro del systemd dado que usando el parametro _config.my-cnf_ nos falla la conexión&#x20;
+Los datos de conexión los ponemos dentro del systemd dado que usando el parametro _config.my-cnf_ nos falla la conexión
 {% endhint %}
 
 ```bash
@@ -989,7 +988,6 @@ receivers:
     auth_username: "email@domain.com"
     auth_identity: "email@domain.com"
     auth_password: "password"
-
 ```
 
 Lo agregamos a systemd
@@ -1013,7 +1011,6 @@ ExecStart=/usr/local/bin/alertmanager --config.file /etc/alertmanager/alertmanag
 
 [Install]
 WantedBy=multi-user.target
-
 ```
 
 Recargamos el demonio de systemd y ya lo tendremos disponible.
@@ -1093,7 +1090,6 @@ groups:
       summary: "85% HD Full more than 1h instance {{ $labels.instance }}"
       description: "FullHD"
   
-
 ```
 
 Ahora vamos a agregar las reglas creadas a prometheus
@@ -1213,35 +1209,34 @@ enforce_domain = true
 # https certs & key file
 cert_file =/etc/grafana/cert.pem
 cert_key =/etc/grafana/privkey.pem
-
 ```
 
 ahora ingresamos en nuestro grafana y ponemos el usuario y contraseña por defecto que es admin:admin nada mas introducirlo nos pedira cambiarlo por la que nosotros queramos.
 
-![Grafana login](<.gitbook/assets/grafana\_login.png>)
+![Grafana login](.gitbook/assets/grafana\_login.png)
 
 Una vez dentro vamos a configurar algunos dashboard para ver los datos de prometheus, [hay muchos creados](https://grafana.com/grafana/dashboards/) que son los que vamos a usar o podriamos crear los nuestros propios.
 
 Antes de empezar a graficar cosas necesitamos decirle a grafana de donde va a sacar los datos para ello vamos Configuration -> Data Sources y agregamos la fuente que queramos en este caso prometheus
 
-![Data Sources](<.gitbook/assets/grafana\_data\_source.png>)
+![Data Sources](.gitbook/assets/grafana\_data\_source.png)
 
 Rellenamos nuestra configuracion hay que acordarse de poner la Basic auth para que podamos recoger los datos.
 
-![Configuracion grafana prometheus](<.gitbook/assets/grafana\_prometheus\_connection.png>)
+![Configuracion grafana prometheus](.gitbook/assets/grafana\_prometheus\_connection.png)
 
 Una vez que tenemos el DataSource configurado buscamos el dashboard que nos interesa y nos copiamos su identificador
 
-![Node exporter grafana](<.gitbook/assets/grafana\_web\_dashboard\_download.png>)
+![Node exporter grafana](.gitbook/assets/grafana\_web\_dashboard\_download.png)
 
 Ahora nos dirigimos a Dashbard -> import y pegamos el id del dashboard
 
-![Importar dashboard grafana](<.gitbook/assets/import\_dashboard.png>)
+![Importar dashboard grafana](.gitbook/assets/import\_dashboard.png)
 
 Lo cargamos y le decimos que Data Source usuara.
 
-![Configuracion dashboard](<.gitbook/assets/import\_config\_dashboard.png>)
+![Configuracion dashboard](.gitbook/assets/import\_config\_dashboard.png)
 
-![Dashboard](<.gitbook/assets/grafana\_full\_node\_exporter.png>)
+![Dashboard](.gitbook/assets/grafana\_full\_node\_exporter.png)
 
 Ahora ya solo nos queda agregar los Dashboard que nosotros queramos.

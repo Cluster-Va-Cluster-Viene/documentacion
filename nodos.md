@@ -2,13 +2,13 @@
 
 Vamos con la configuración de los nodos que contendrán Apache2 + PHP + MySQL Galera Clusters + GlusterFS + memcached
 
-## GlusterFs
+### GlusterFs
 
 El primer problema que nos encontramos cuando queremos utilizar un sistema de nodos es que cada servidor tiene sus discos duros y por lo tanto tenemos que buscar alguna manera de sincronizar los ficheros, para esto vamos a usar [GlusterFS](https://www.gluster.org/)
 
 Tenemos varios métodos de sincronización de ficheros pero nosotros vamos a utilizar el tipo replica
 
-![GlusterFS Replica](<.gitbook/assets/GlusterFs\_Replicacion.png>)
+![GlusterFS Replica](.gitbook/assets/GlusterFs\_Replicacion.png)
 
 Lo primero que vamos a realizar es añadir al fichero **hosts** las direcciones de la red interna de los diferentes nodos para facilitarnos la vida en la comunicación con gusterfs
 
@@ -240,8 +240,8 @@ Ejecutamos el script para que nos agregue los repositorios
 {% hint style="danger" %}
 Como los repositorios de mariadb no han sido actualizados todavía a "22.04 (Jammy Jellyfish)" No lanzaremos los repositorios oficiales, por lo que las versiones que se nos instalaran son las siguiente:
 
-* mariadb 10.6.7 vs 10.6.8 [_Changelog_](https://mariadb.com/kb/en/mariadb-1068-release-notes/)__
-* galeraCuster: 26.4.9 vs 26.4.12 [_Changelog_](https://fromdual.com/galera-cluster-release-notes)__
+* mariadb 10.6.7 vs 10.6.8 [_Changelog_](https://mariadb.com/kb/en/mariadb-1068-release-notes/)\_\_
+* galeraCuster: 26.4.9 vs 26.4.12 [_Changelog_](https://fromdual.com/galera-cluster-release-notes)\_\_
 
 Cuando se lance el repositorio seria recomendable activarlos.
 {% endhint %}

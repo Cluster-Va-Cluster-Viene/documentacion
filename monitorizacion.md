@@ -360,7 +360,13 @@ cd node_exporter-1.3.1.linux-amd64
 cp ./node_exporter /usr/local/bin
 ```
 
-Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera facil.
+Asignamos permisos
+
+```bash
+chown node_exporter:node_exporter /usr/local/bin/node_exporter
+```
+
+Igual que con prometheus vamos a añadirlo en el systemd para poderlo arrancar en el arranque del sistema de manera fácil.
 
 ```bash
 vim /etc/systemd/system/node_exporter.service

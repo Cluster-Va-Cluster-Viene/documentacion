@@ -28,3 +28,5 @@ Cluster va Cluster viene por [Rafael Otal Simal](https://legacy.gitbook.com/book
 ## Agradecimientos
 
 [joseaguardia](https://github.com/joseaguardia) Bug en el script de Tor \[[#1](https://github.com/Cluster-Va-Cluster-Viene/documentacion/issues/1)]
+
+[Esdras](https://github.com/emarco98) Mejoras en el health check del waf \[[#2](https://github.com/Cluster-Va-Cluster-Viene/documentacion/pull/2)]

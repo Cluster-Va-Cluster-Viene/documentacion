@@ -103,6 +103,7 @@ Activamos el módulos de proxy de apache
 
 ```bash
 a2enmod proxy
+a2enmod proxy_http
 ```
 
 Ahora vamos a configurar el VirtualHost por defecto para que haga de proxy reverso

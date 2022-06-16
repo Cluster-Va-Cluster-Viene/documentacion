@@ -99,7 +99,9 @@ El balance especifica la estrategia de equilibrio de carga. En este caso usamos 
         mode http
         log global
         option forwardfor header X-Client-IP
-        option httpchk HEAD /waf_health_check HTTP/1.0
+        option httpchk
+        http-check connect
+        http-check send meth GET uri /waf_health_check ver HTTP/1.1 hdr host haproxy.local
         # Specific WAF checking: a DENY means everything is OK
         http-check expect status 403
         timeout server 25s

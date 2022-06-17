@@ -155,6 +155,40 @@ mount -a
 
 Ahora cada fichero que se cree modifique o elimine de uno de los nodos se replicara en los otros nodos de manera automática.
 
+{% hint style="danger" %}
+Existe un[ bug en glusterfs en ubuntu ](https://bugs.launchpad.net/ubuntu/+source/glusterfs/+bug/876648)si se usan los volúmenes en los propios servidores.
+{% endhint %}
+
+Durante el proceso de arranque, GlusterFS tardará un poco en iniciarse. systemd-mount, que maneja los puntos de montaje desde /etc/fstab, se ejecutará antes de que el servicio glusterfs-server termine de iniciarse.
+
+El montaje fallará, por lo que terminará sin su volumen montado después de reiniciar.
+
+La solución es crear el siguiente directorio
+
+```bash
+mkdir -p /etc/systemd/system/www.mount.d/
+```
+
+y dentro el siguiente fichero
+
+```bash
+vim /etc/systemd/system/www.mount.d/override.confd
+```
+
+```vim
+[Unit]
+After=glusterfs-server.service
+Wants=glusterfs-server.service
+```
+
+recargamos systemd
+
+```bash
+systemctl daemon-reload
+```
+
+Y en el siguiente arranque ya tendremos el punto de montaje cargado automaticamente.
+
 ### Apache + PHP
 
 Ahora que ya nos funciona el sistema de archivos compartidos vamos instalar apache2 + php

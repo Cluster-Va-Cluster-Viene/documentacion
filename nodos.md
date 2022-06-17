@@ -172,7 +172,7 @@ mkdir -p /etc/systemd/system/www.mount.d/
 y dentro el siguiente fichero
 
 ```bash
-vim /etc/systemd/system/www.mount.d/override.confd
+vim /etc/systemd/system/www.mount.d/override.conf
 ```
 
 ```vim
